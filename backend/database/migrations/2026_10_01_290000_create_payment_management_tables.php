@@ -49,7 +49,7 @@ return new class extends Migration
         });
         Schema::create('payment_transactions', function (Blueprint $t) {
             $t->id();
-            $t->foreignId('payment_attempt_id')->constrained()->cascadeOnDelete();
+            $t->foreignUuid('payment_attempt_id')->constrained()->cascadeOnDelete();
             $t->foreignId('order_id')->constrained()->cascadeOnDelete();
             $t->string('provider_code');
             $t->string('type');

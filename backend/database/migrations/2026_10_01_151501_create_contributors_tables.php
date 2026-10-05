@@ -34,12 +34,14 @@ return new class extends Migration
             $table->timestamps();
         });
         Schema::create('contributor_engineering_discipline', function (Blueprint $table) {
-            $table->foreignId('contributor_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('engineering_discipline_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('contributor_id');
+            $table->foreign('contributor_id', 'contributor_discipline_contributor_fk')->references('id')->on('contributors')->cascadeOnDelete();
+            $table->foreignId('engineering_discipline_id');
+            $table->foreign('engineering_discipline_id', 'contributor_discipline_discipline_fk')->references('id')->on('engineering_disciplines')->cascadeOnDelete();
             $table->boolean('is_primary')->default(false);
             $table->unsignedInteger('sort_order')->default(0);
-            $table->primary(['contributor_id', 'engineering_discipline_id']);
-            $table->index(['engineering_discipline_id', 'contributor_id']);
+            $table->primary(['contributor_id', 'engineering_discipline_id'], 'contributor_discipline_pk');
+            $table->index(['engineering_discipline_id', 'contributor_id'], 'contributor_discipline_lookup_idx');
         });
     }
 
