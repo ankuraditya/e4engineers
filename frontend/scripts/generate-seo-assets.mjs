@@ -12,7 +12,7 @@ const add = (pathname, lastmod) => {
   urls.set(url, lastmod ? String(lastmod).slice(0, 10) : null);
 };
 
-for (const route of ['/', '/about/', '/articles/', '/courses/', '/contact/', '/engineering/']) add(route);
+for (const route of ['/', '/about/', '/articles/', '/courses/', '/contact/', '/engineering/', '/internships/']) add(route);
 
 async function published(kind) {
   const results = [];
