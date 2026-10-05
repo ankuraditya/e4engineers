@@ -14,3 +14,6 @@ RewriteRule ^(choice-of-size-and-number-of-generator-units|factors-affecting-cos
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [L]
+
+# Route catalogue paths to React even when a same-named asset directory exists.
+RewriteRule ^(articles|books|contributors|courses|publications)/?$ /index.html [L]
