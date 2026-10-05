@@ -60,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('public-support', fn (Request $request): Limit => Limit::perHour(5)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('workshop-registration', fn (Request $request): Limit => Limit::perHour(10)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('career-application', fn (Request $request): Limit => Limit::perHour(5)->by($request->ip().'|'.mb_strtolower((string) $request->input('email'))));
+        RateLimiter::for('certificate-lookup', fn (Request $request): Limit => Limit::perHour(5)->by($request->ip()));
         RateLimiter::for('public-search', fn (Request $request): Limit => Limit::perMinute(30)->by($request->ip()));
 
         Relation::morphMap(['resource' => DigitalResource::class, 'publication' => Publication::class]);

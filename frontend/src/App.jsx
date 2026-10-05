@@ -13,6 +13,8 @@ import { EmptyState } from "./components/shared/InnerPageComponents";
 import { AboutPage, DisciplineDetailPage, EngineeringPage } from "./pages/PhaseOnePages";
 import { ArticleDetailPage, ArticlesPage } from "./pages/ArticlePages";
 import { PublicationDetailPage, PublicationsPage } from "./pages/PublicationPages";
+import { InternshipsPage } from "./pages/InternshipsPage";
+import { VerifyCertificatePage } from "./pages/VerifyCertificatePage";
 import { CourseDetailPage, CoursesPage } from "./pages/CoursePages";
 import { ContactPage, SearchPage } from "./pages/PhaseThreePages";
 import { BookDetailPage, BooksPage } from "./pages/BookPages";
@@ -33,6 +35,7 @@ import { AdminInvoicePage } from "./pages/AdminInvoicePage.jsx";
 import { AdminShipmentPage } from "./pages/AdminShipmentPage.jsx";
 import { AdminNotificationsPage } from "./pages/AdminNotificationsPage.jsx";
 import { AdminOperationsPage } from "./pages/AdminOperationsPage.jsx";
+import { AdminCertificatesPage } from "./pages/AdminCertificatesPage.jsx";
 import { AdminDiscoveryPage } from "./pages/AdminDiscoveryPage.jsx";
 import { AdminLayout } from "./components/admin/AdminLayout.jsx";
 import { AdminDashboardPage, AdminLoginPage } from "./pages/AdminCorePages.jsx";
@@ -75,11 +78,9 @@ const navigation = [
     ["Study Guides", "/resources?type=study-guides"],
     ["Practice Materials", "/resources?type=practice-materials"],
   ] },
-  { label: "Publications", items: [
-    ["Journals", "/publications?type=journal"],
-    ["Publications", "/publications"],
-    ["Research Articles", "/articles"],
-    ["Resources", "/resources"],
+  { label: "Internship", items: [
+    ["Explore Internships", "/internships"],
+    ["Verify Certificate", "/verify-certificate"],
   ] },
   { label: "Books", href: "/books" }, { label: "About", href: "/about" },
 ];
@@ -130,7 +131,7 @@ function Header({ publicationsEnabled }) {
           {navigation.map((item) => (
             <div className="nav-item" key={item.label}>
               {item.items ? <>
-                <button className={`nav-link ${openMenu === item.label ? "nav-link--active" : ""} ${(item.label === "Engineering" && currentPath.startsWith("/engineering")) || (item.label === "Learn" && (currentPath.startsWith("/courses") || currentPath.startsWith("/resources"))) || (item.label === "Publications" && (currentPath.startsWith("/articles") || currentPath.startsWith("/publications"))) ? "nav-link--current" : ""}`} type="button" aria-expanded={openMenu === item.label} aria-haspopup="menu" onClick={() => setOpenMenu((current) => current === item.label ? null : item.label)}>{item.label}<CaretDown aria-hidden="true" weight="bold" /></button>
+                <button className={`nav-link ${openMenu === item.label ? "nav-link--active" : ""} ${(item.label === "Engineering" && currentPath.startsWith("/engineering")) || (item.label === "Learn" && (currentPath.startsWith("/courses") || currentPath.startsWith("/resources"))) || (item.label === "Internship" && (currentPath.startsWith("/internships") || currentPath === "/verify-certificate")) ? "nav-link--current" : ""}`} type="button" aria-expanded={openMenu === item.label} aria-haspopup="menu" onClick={() => setOpenMenu((current) => current === item.label ? null : item.label)}>{item.label}<CaretDown aria-hidden="true" weight="bold" /></button>
                 {openMenu === item.label && <div className={`nav-dropdown nav-dropdown--${item.label.toLowerCase()}`} role="menu">{item.items.filter(([, href]) => publicationsEnabled || !href.startsWith('/publications')).map(([label, href]) => <a href={href} role="menuitem" onClick={() => { setOpenMenu(null); setMobileOpen(false); }} key={label}>{label}</a>)}</div>}
               </> : <a className={`nav-link ${(currentPath === item.href || (item.href === "/books" && currentPath.startsWith("/books/"))) ? "nav-link--current" : ""}`} href={item.href} onClick={() => { setOpenMenu(null); setMobileOpen(false); }}>{item.label}</a>}
             </div>
@@ -202,6 +203,8 @@ export function App() {
   else if (path === "/articles") page = <ArticlesPage />;
   else if (path.startsWith("/articles/")) page = <ArticleDetailPage slug={decodeURIComponent(path.split("/")[2] || "power-system-economics")} />;
   else if (path === "/courses") page = <CoursesPage />;
+  else if (path === "/internships") page = <InternshipsPage />;
+  else if (path === "/verify-certificate") page = <VerifyCertificatePage />;
   else if (path.startsWith("/courses/")) page = <CourseDetailPage slug={decodeURIComponent(path.split("/")[2] || "fundamentals-of-electrical-and-electronics-engineering")} />;
   else if (path === "/publications") page = publicationsEnabled ? <PublicationsPage /> : <div className="inner-page"><div className="container inner-page__container"><EmptyState title="Publications unavailable" message="Journals and publications are currently hidden." /></div></div>;
   else if (path.startsWith("/publications/")) page = publicationsEnabled ? <PublicationDetailPage slug={decodeURIComponent(path.split("/")[2] || "international-journal-of-electrical-engineering")} /> : <div className="inner-page"><div className="container inner-page__container"><EmptyState title="Publications unavailable" message="Journals and publications are currently hidden." /></div></div>;
@@ -250,6 +253,7 @@ export function App() {
   else if (path === "/admin/shipments") page = <AdminShipmentPage />;
   else if (path === "/admin/notifications") page = <AdminNotificationsPage />;
   else if (path === "/admin/operations") page = <AdminOperationsPage />;
+  else if (path === "/admin/certificates") page = <AdminCertificatesPage />;
   else if (path === "/admin/discovery") page = <AdminDiscoveryPage />;
   else if (path === "/admin/payments") page = <AdminPaymentPage />;
   else if (path === "/admin/invoices") page = <AdminInvoicePage />;

@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\Admin\CouponController;
 use App\Http\Controllers\Api\V1\Admin\CourseSeoController;
 use App\Http\Controllers\Api\V1\Admin\DigitalResourceSeoController;
 use App\Http\Controllers\Api\V1\Admin\EntitlementController;
+use App\Http\Controllers\Api\V1\Admin\InternshipCertificateController as AdminInternshipCertificateController;
 use App\Http\Controllers\Api\V1\Admin\InventoryController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceSettingsController;
@@ -43,6 +44,7 @@ use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CartCouponController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\InternshipCertificateController;
 use App\Http\Controllers\Api\V1\InvoiceController;
 use App\Http\Controllers\Api\V1\OperationalController;
 use App\Http\Controllers\Api\V1\OrderAccessController;
@@ -91,6 +93,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
     Route::get('/careers', [OperationalController::class, 'careers']);
     Route::get('/careers/{slug}', [OperationalController::class, 'career']);
     Route::post('/careers/{job}/applications', [OperationalController::class, 'apply'])->middleware('throttle:career-application');
+    Route::post('/internships/certificates/download', [InternshipCertificateController::class, 'download'])->middleware('throttle:certificate-lookup');
 
     $publicMasterControllers = [
         'engineering-disciplines' => EngineeringDisciplineController::class,
@@ -280,6 +283,9 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
             Route::delete('/workshops/{workshop}', [OperationsController::class, 'deleteWorkshop'])->middleware('permission:workshops.manage');
             Route::get('/workshops/{workshop}/registrations', [OperationsController::class, 'registrations'])->middleware('permission:workshops.view');
             Route::get('/career-openings', [OperationsController::class, 'jobs'])->middleware('permission:careers.view');
+            Route::get('/internship-certificates', [AdminInternshipCertificateController::class, 'index'])->middleware('permission:careers.view');
+            Route::post('/internship-certificates', [AdminInternshipCertificateController::class, 'store'])->middleware('permission:careers.manage');
+            Route::patch('/internship-certificates/{certificate}', [AdminInternshipCertificateController::class, 'update'])->middleware('permission:careers.manage');
             Route::post('/career-openings', [OperationsController::class, 'saveJob'])->middleware('permission:careers.manage');
             Route::put('/career-openings/{job}', [OperationsController::class, 'saveJob'])->middleware('permission:careers.manage');
             Route::delete('/career-openings/{job}', [OperationsController::class, 'deleteJob'])->middleware('permission:careers.manage');

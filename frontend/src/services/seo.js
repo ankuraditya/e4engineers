@@ -7,7 +7,7 @@ import { publicationsService } from './publicationsService.js';
 const BRAND = 'E4ENGINEERS';
 const SITE = (import.meta.env?.VITE_SITE_URL || 'https://e4engineers.in').replace(/\/$/, '');
 const DEFAULT_DESCRIPTION = 'Explore engineering articles and courses from E4ENGINEERS. Build stronger fundamentals with practical technical knowledge.';
-const PRIVATE_PATH = /^\/(?:admin|account|cart|checkout|login|register|forgot-password|reset-password|order-success|support|search)(?:\/|$)/;
+const PRIVATE_PATH = /^\/(?:admin|account|cart|checkout|login|register|forgot-password|reset-password|order-success|support|search|verify-certificate)(?:\/|$)/;
 const UNFINISHED_POLICY = /^\/(?:privacy-policy|terms|shipping-policy|returns-refunds)(?:\/|$)/;
 const STATIC_PAGES = {
   '/': ['Engineering Knowledge, Connected', DEFAULT_DESCRIPTION],
@@ -16,6 +16,7 @@ const STATIC_PAGES = {
   '/courses': ['Engineering Courses', 'Explore published engineering courses and build a stronger technical foundation.'],
   '/contact': ['Contact E4ENGINEERS', 'Contact E4ENGINEERS about engineering education, courses and technical content.'],
   '/engineering': ['Engineering Disciplines', 'Explore engineering disciplines and discover relevant technical content.'],
+  '/internships': ['Engineering Internships', 'Explore available internship programs at E4ENGINEERS.'],
 };
 const COLLECTION_PAGES = {
   '/books': ['Engineering Books', 'Browse available engineering books and academic references.', () => booksService.getBooks({ per_page: 1 })],

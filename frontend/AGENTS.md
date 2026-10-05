@@ -15,3 +15,5 @@ Homepage content cards need short previews with a word limit and visual line cla
 
 Scan & Pay is an optional admin-configured checkout method. Customers must upload a payment screenshot, and an administrator must verify it before an order is marked paid.
 
+The client requested an Internship navigation area with an Explore Internships landing page listing available programs and a Verify Certificate entry. Keep the approved public design language and do not invent live programs.
+
