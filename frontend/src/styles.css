@@ -673,3 +673,9 @@ body.page-loader-active{overflow:hidden}.global-page-loader{position:fixed;z-ind
 .admin-content-list .admin-crud-actions input { min-width: 170px; min-height: 32px; padding: 6px 9px; border: 1px solid #cdddeb; border-radius: 7px; }
 .admin-content-list .admin-crud-actions a { display: inline-flex; align-items: center; padding: 6px 11px; border: 1px solid #cdddeb; border-radius: 7px; background: #fff; color: #0867c9; font-size: .68rem; font-weight: 800; text-decoration: none; }
 @media (max-width: 800px) { .admin-content-list .admin-crud-actions { max-width: 100%; justify-content: flex-start; } }
+.catalog-feature--course{min-height:0;grid-template-columns:minmax(0,42%) minmax(0,1fr)}
+.catalog-feature--course>img{height:260px;min-height:0;object-fit:cover}
+.catalog-feature--course>div{padding:24px;justify-content:center}
+.catalog-feature--course p,.course-list-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.course-list-card{min-height:0}
+@media(max-width:560px){.catalog-feature--course{grid-template-columns:1fr}.catalog-feature--course>img{height:205px;min-height:0}}
