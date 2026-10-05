@@ -16,6 +16,7 @@ export const adminCommerceService = {
   createPublisher: (name) => request('/publishers', { method: 'POST', csrf: true, body: { name } }),
   disciplines: () => request('/engineering-disciplines?per_page=100'),
   categories: () => request('/categories?per_page=100'),
+  createCategory: (name) => request('/categories', { method: 'POST', csrf: true, body: { name, context: 'book' } }),
   media: () => request('/media?per_page=100'),
   uploadMedia: (file, altText = '') => {
     const body = new FormData();
