@@ -1,0 +1,2 @@
+# Search security
+Search has bounded query length, per-IP rate limiting, ORM-bound patterns and a fixed type allowlist. Every source explicitly requires public publication state. Customers, addresses, orders, payments, invoices, tickets, applications, resumes, notification logs, private Media paths and protected digital file locations are absent from the source registry. Results contain no rendered HTML or private file identifiers.

@@ -1,0 +1,2 @@
+# Notice architecture
+Notices reuse the Phase 04 `categories` table with `context=notice`, Phase 05 public Media for featured images and circular attachments, and polymorphic SEO metadata. Public queries require published state and publication time. Active listings exclude expired records; `status=past` returns expired records. Slugs remain stable after creation. Pinned records sort first and featured records feed homepage discovery.

@@ -1,0 +1,35 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*credentials*.json
+
+# Dependencies and generated builds
+**/node_modules/
+**/vendor/
+**/dist/
+**/build/
+frontend/deployment/
+deployment-package/
+
+# Local data, uploads, and test output
+**/*.sqlite
+**/*.sqlite-*
+backend/storage/
+backend/public/storage/
+frontend/qa/
+*.log
+*.zip
+*.tar.gz
+**/.phpunit.cache/
+**/.phpunit.result.cache
+**/coverage/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

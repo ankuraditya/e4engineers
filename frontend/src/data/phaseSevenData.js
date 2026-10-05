@@ -1,0 +1,21 @@
+export const faqItems=[
+ ["general","General","What is E4ENGINEERS?","E4ENGINEERS brings engineering courses, technical resources, publications and books together."],
+ ["general-users","General","Who can use E4ENGINEERS?","Students, educators, working engineers and anyone building practical engineering knowledge can use the platform."],
+ ["course-access","Courses","How do I access a course?","Open the course catalogue and select a course to review its available lessons and access options."],
+ ["course-paced","Courses","Are courses self-paced?","Courses marked self-paced can be studied on your schedule. Each course page shows its intended mode."],
+ ["resource-free","Study Resources","Which resources are free?","Each resource displays its access level. Free resources can be opened without a paid entitlement."],
+ ["resource-premium","Study Resources","How do Premium resources work?","Premium resources require a verified purchase before the backend grants access to the customer account."],
+ ["publication-access","Publications","How can I access journals and publications?","Browse Publications, open an issue, and follow the displayed access option for that publication."],
+ ["publication-download","Publications","Are publications available for download?","Downloads depend on the publication access policy. Eligible files appear in My Downloads after authorization."],
+ ["book-purchase","Books & Orders","How do I purchase an engineering book?","Add an available book to your cart, review the order and complete the checkout steps."],
+ ["book-multiple","Books & Orders","Can I order multiple books together?","Yes. You can add multiple available books and quantities to one cart before checkout."],
+ ["payment-methods","Payments","Which payment methods are supported?","Checkout displays the payment methods currently enabled by E4ENGINEERS. Availability can vary by order and delivery location."],
+ ["payment-failed","Payments","What happens if my payment fails?","A failed payment does not create paid access. Check your order status before retrying payment."],
+ ["shipping-track","Shipping & Delivery","How can I track my order?","Open My Orders and choose Track Order to view the courier and shipment timeline when available."],
+ ["shipping-charge","Shipping & Delivery","How are shipping charges calculated?","Checkout calculates shipping from the items, order value and delivery location before you place an order."],
+ ["account-required","Account","Do I need an account to purchase books?","No. You can check out as a guest. If you are new, an account is created after you place an order and you receive a password setup link."],
+ ["account-password","Account","How can I change my password?","Open My Account, choose Change Password and submit your current and new passwords."],
+ ["download-find","Downloads","Where can I find my purchased digital resources?","Purchased access appears under My Digital Resources, with eligible files listed under My Downloads."],
+ ["download-use","Downloads","How do I download available resources?","Open My Downloads and choose Download. Eligible files are served after your access is verified."],
+].map(([id,category,question,answer])=>({id,category,question,answer}));
+

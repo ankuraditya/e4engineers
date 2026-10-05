@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://e4engineers.in/sitemap.xml
+Sitemap: https://api.e4engineers.in/api/v1/sitemap.xml
