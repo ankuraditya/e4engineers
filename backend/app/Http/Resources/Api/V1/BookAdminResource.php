@@ -11,6 +11,7 @@ class BookAdminResource extends BookResource
         return array_merge(parent::toArray($request), [
             'description' => $this->description,
             'engineering_discipline_id' => $this->engineering_discipline_id,
+            'discipline_ids' => $this->disciplines->pluck('id')->values(),
             'category_id' => $this->category_id,
             'publisher_id' => $this->publisher_id,
             'cover_media_id' => $this->cover_media_id,

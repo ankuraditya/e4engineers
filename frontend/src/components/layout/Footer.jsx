@@ -12,6 +12,7 @@ const footerNavigation = [
       ["Computer Science Engineering", "/engineering/computer-science-engineering"],
       ["Power Systems Engineering", "/engineering/power-systems-engineering"],
       ["Engineering Mathematics", "/engineering/engineering-mathematics"],
+      ["Metallurgy Engineering", "/engineering/metallurgy-engineering"],
     ],
   },
   {

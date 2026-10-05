@@ -19,7 +19,7 @@ final class CouponService
             throw new CouponValidationException('COUPON_NOT_FOUND', 'Invalid coupon code.');
         }
 
-return $coupon;
+        return $coupon;
     }
 
     public function apply(Cart $cart, string $code, ?User $user): array
@@ -54,7 +54,7 @@ return $coupon;
             return $this->removed($result['reason_code'], $result['message']);
         }
 
-return $result;
+        return $result;
     }
 
     public function calculate(Coupon $coupon, Cart $cart, ?User $user): array
@@ -99,7 +99,7 @@ return $result;
     private function eligible(Coupon $coupon, $book): bool
     {
         return match ($coupon->applies_to) {
-            CouponScope::AllBooks => true,CouponScope::SpecificBooks => $coupon->books->contains($book->id),CouponScope::BookCategories => $book->category_id !== null && $coupon->categories->contains($book->category_id),CouponScope::EngineeringDisciplines => $book->engineering_discipline_id !== null && $coupon->disciplines->contains($book->engineering_discipline_id)
+            CouponScope::AllBooks => true,CouponScope::SpecificBooks => $coupon->books->contains($book->id),CouponScope::BookCategories => $book->category_id !== null && $coupon->categories->contains($book->category_id),CouponScope::EngineeringDisciplines => $coupon->disciplines->contains($book->engineering_discipline_id) || $book->disciplines()->whereIn('engineering_disciplines.id', $coupon->disciplines->pluck('id'))->exists()
         };
     }
 
@@ -127,6 +127,6 @@ return $result;
 
     private function money(int $cents): string
     {
-        return number_format($cents / 100,2,'.','');
+        return number_format($cents / 100, 2, '.', '');
     }
 }

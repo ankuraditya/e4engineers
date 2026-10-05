@@ -25,6 +25,11 @@ class Book extends Model
         return $this->belongsTo(EngineeringDiscipline::class, 'engineering_discipline_id');
     }
 
+    public function disciplines()
+    {
+        return $this->belongsToMany(EngineeringDiscipline::class, 'book_engineering_disciplines')->orderBy('engineering_disciplines.sort_order');
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

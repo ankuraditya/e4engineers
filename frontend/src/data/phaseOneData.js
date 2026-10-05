@@ -9,6 +9,7 @@ export const disciplines = [
   { slug:"computer-science-engineering", name:"Computer Science Engineering", icon:Monitor, description:"Software, computing systems, algorithms, networks and intelligent applications." },
   { slug:"power-systems-engineering", name:"Power Systems Engineering", icon:CellTower, description:"Generation, transmission, distribution, smart grids and energy economics." },
   { slug:"engineering-mathematics", name:"Engineering Mathematics", icon:Sigma, description:"Mathematical methods, modelling and analysis for engineering problem-solving." },
+  { slug:"metallurgy-engineering", name:"Metallurgy Engineering", icon:Gear, description:"Metals, materials processing, alloys and industrial applications." },
 ];
 
 export const resources = ["Lecture Notes","Formula Sheets","Solved Question Papers","Technical Diagrams"];

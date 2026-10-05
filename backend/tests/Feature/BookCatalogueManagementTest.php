@@ -93,4 +93,25 @@ final class BookCatalogueManagementTest extends TestCase
         $d['title'] = 'Another';
         $this->postJson('/api/v1/admin/books', $d)->assertUnprocessable()->assertJsonValidationErrors(['sku', 'isbn']);
     }
+
+    public function test_book_can_be_assigned_to_multiple_disciplines_and_found_in_each(): void
+    {
+        $first = EngineeringDiscipline::where('slug', 'electrical-engineering')->firstOrFail();
+        $second = EngineeringDiscipline::where('slug', 'metallurgy-engineering')->firstOrFail();
+        $data = $this->data();
+        $data['discipline_ids'] = [$first->id, $second->id];
+
+        $created = $this->actingAs($this->user('book-manager'), 'web')
+            ->postJson('/api/v1/admin/books', $data)
+            ->assertCreated()
+            ->assertJsonPath('data.discipline_ids', [$first->id, $second->id]);
+
+        $this->getJson('/api/v1/books?discipline=electrical-engineering')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/v1/books?discipline=metallurgy-engineering')->assertOk()->assertJsonCount(1, 'data');
+
+        $this->patchJson('/api/v1/admin/books/'.$created->json('data.id'), ['discipline_ids' => [$second->id]])
+            ->assertOk()->assertJsonPath('data.discipline_ids', [$second->id]);
+        $this->getJson('/api/v1/books?discipline=electrical-engineering')->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson('/api/v1/books?discipline=metallurgy-engineering')->assertOk()->assertJsonCount(1, 'data');
+    }
 }

@@ -19,6 +19,7 @@ const disciplines = [
   { name: "Computer Science Engineering", lines: ["Computer Science", "Engineering"], slug: "computer-science-engineering", icon: Monitor },
   { name: "Power Systems Engineering", lines: ["Power Systems", "Engineering"], slug: "power-systems-engineering", icon: CellTower },
   { name: "Engineering Mathematics", lines: ["Engineering", "Mathematics"], slug: "engineering-mathematics", icon: Sigma },
+  { name: "Metallurgy Engineering", lines: ["Metallurgy", "Engineering"], slug: "metallurgy-engineering", icon: Gear },
 ];
 
 function DisciplineCard({ discipline }) {

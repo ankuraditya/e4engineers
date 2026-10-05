@@ -15,7 +15,7 @@ export function mapBook(book) {
   const stock = book.inventory?.status === "OUT_OF_STOCK" ? "Out of Stock" : book.inventory?.status === "LOW_STOCK" ? "Low Stock" : "In Stock";
   return {
     ...book,
-    discipline: book.discipline?.name || "Engineering",
+    discipline: book.disciplines?.length ? book.disciplines.map((item) => item.name).join(', ') : book.discipline?.name || "Engineering",
     category: book.category?.name || "Engineering Book",
     author: book.author_summary || "E4ENGINEERS Author",
     publisher: book.publisher?.name || "E4ENGINEERS Academic Publications",

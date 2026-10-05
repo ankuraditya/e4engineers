@@ -23,6 +23,7 @@ class StoreBookRequest extends ApiRequest
             'sku' => ['nullable', 'string', 'max:80', 'regex:/^[A-Z0-9-]+$/', Rule::unique('books')->ignore($id)],
             'isbn' => ['nullable', 'string', 'max:32', Rule::unique('books')->ignore($id)], 'short_description' => ['nullable', 'string', 'max:2000'], 'description' => [$r, 'string', 'max:200000'],
             'engineering_discipline_id' => ['nullable', 'integer', 'exists:engineering_disciplines,id'], 'category_id' => ['nullable', 'integer', Rule::exists('categories', 'id')->where(fn ($q) => $q->whereIn('context', ['book', 'general', 'all']))],
+            'discipline_ids' => ['sometimes', 'array'], 'discipline_ids.*' => ['integer', 'distinct', 'exists:engineering_disciplines,id'],
             'publisher_id' => ['nullable', 'integer', Rule::exists('publishers', 'id')->where(fn ($q) => $q->where('is_active', true))],
             'authors' => ['sometimes', 'array'], 'authors.*.id' => ['required', 'integer', Rule::exists('authors', 'id')->where(fn ($q) => $q->where('is_active', true))], 'authors.*.role' => ['nullable', Rule::in(['author', 'co_author', 'editor'])],
             'edition' => ['nullable', 'string', 'max:100'], 'publication_year' => ['nullable', 'integer', 'min:1000', 'max:'.(now()->year + 2)], 'language' => ['sometimes', 'string', 'max:80'], 'pages' => ['nullable', 'integer', 'min:1'], 'format' => ['sometimes', Rule::enum(BookFormat::class)],

@@ -29,7 +29,11 @@ final class ManageBook
         return DB::transaction(function () use ($book, $data, $userId, $new) {
             $authors = $data['authors'] ?? null;
             $gallery = $data['gallery'] ?? null;
-            unset($data['authors'],$data['gallery']);
+            $disciplineIds = $data['discipline_ids'] ?? null;
+            unset($data['authors'],$data['gallery'],$data['discipline_ids']);
+            if ($disciplineIds !== null) {
+                $data['engineering_discipline_id'] = $disciplineIds[0] ?? null;
+            }
             if (isset($data['description'])) {
                 $data['description'] = $this->sanitizer->clean($data['description']);
             }
@@ -43,6 +47,11 @@ final class ManageBook
                 $data['published_at'] = now();
             }
             $book->fill($data)->save();
+            if ($disciplineIds !== null) {
+                $book->disciplines()->sync($disciplineIds);
+            } elseif (array_key_exists('engineering_discipline_id', $data)) {
+                $book->disciplines()->sync($data['engineering_discipline_id'] ? [$data['engineering_discipline_id']] : []);
+            }
             if ($new) {
                 $this->inventory->initialize($book);
             }
@@ -76,6 +85,6 @@ final class ManageBook
 
     public function relations(): array
     {
-        return ['discipline', 'category', 'publisher.logo', 'cover', 'authors.photo', 'images.media', 'seo.ogMedia', 'inventory'];
+        return ['discipline', 'disciplines', 'category', 'publisher.logo', 'cover', 'authors.photo', 'images.media', 'seo.ogMedia', 'inventory'];
     }
 }

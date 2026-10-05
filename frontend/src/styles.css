@@ -679,3 +679,9 @@ body.page-loader-active{overflow:hidden}.global-page-loader{position:fixed;z-ind
 .catalog-feature--course p,.course-list-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 .course-list-card{min-height:0}
 @media(max-width:560px){.catalog-feature--course{grid-template-columns:1fr}.catalog-feature--course>img{height:205px;min-height:0}}
+.admin-book-disciplines{grid-column:1/-1;margin:0;padding:13px 15px;border:1px solid #d7e2ec;border-radius:10px}
+.admin-book-disciplines legend{padding:0 5px;color:#3f5872;font-size:.75rem;font-weight:750}
+.admin-book-disciplines p{margin:0 0 10px;color:#6a8095;font-size:.72rem}
+.admin-book-disciplines>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.admin-editor-grid .admin-book-disciplines label{display:flex;align-items:center;min-height:0;padding:8px 10px;font-size:.73rem;cursor:pointer}
+@media(max-width:650px){.admin-book-disciplines>div{grid-template-columns:1fr 1fr}}

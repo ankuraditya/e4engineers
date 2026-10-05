@@ -19,7 +19,7 @@ class BookController extends Controller
 
     private function query()
     {
-        return Book::query()->where('status', BookStatus::Published)->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))->with(['discipline', 'category', 'publisher', 'cover', 'authors', 'images.media', 'inventory']);
+        return Book::query()->where('status', BookStatus::Published)->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))->with(['discipline', 'disciplines', 'category', 'publisher', 'cover', 'authors', 'images.media', 'inventory']);
     }
 
     public function index(Request $r): JsonResponse
@@ -28,7 +28,7 @@ class BookController extends Controller
         $payload = $this->cache->remember('list:'.hash('sha256', json_encode($d)), function () use ($d, $r) {
             $q = $this->query()
                 ->when($d['search'] ?? null, fn ($q, $v) => $q->where(fn ($x) => $x->where('title', 'like', "%{$v}%")->orWhere('short_description', 'like', "%{$v}%")->orWhere('isbn', 'like', "%{$v}%")->orWhere('sku', 'like', "%{$v}%")))
-                ->when($d['discipline'] ?? null, fn ($q, $v) => $q->whereHas('discipline', fn ($x) => $x->where('slug', $v)))->when($d['category'] ?? null, fn ($q, $v) => $q->whereHas('category', fn ($x) => $x->where('slug', $v)))
+                ->when($d['discipline'] ?? null, fn ($q, $v) => $q->whereHas('disciplines', fn ($x) => $x->where('slug', $v)))->when($d['category'] ?? null, fn ($q, $v) => $q->whereHas('category', fn ($x) => $x->where('slug', $v)))
                 ->when($d['author'] ?? null, fn ($q, $v) => $q->whereHas('authors', fn ($x) => $x->where('slug', $v)))->when($d['publisher'] ?? null, fn ($q, $v) => $q->whereHas('publisher', fn ($x) => $x->where('slug', $v)))
                 ->when($d['min_price'] ?? null, fn ($q, $v) => $q->where('selling_price', '>=', $v))->when($d['max_price'] ?? null, fn ($q, $v) => $q->where('selling_price', '<=', $v))->when(array_key_exists('featured', $d), fn ($q) => $q->where('is_featured', (bool) $d['featured']))->when(array_key_exists('new_arrival', $d), fn ($q) => $q->where('is_new_arrival', (bool) $d['new_arrival']));
             $q->when($d['availability'] ?? null, function ($query, $value) {
