@@ -13,6 +13,8 @@ The public customer frontend design is client-approved. Preserve its visual layo
 
 Homepage content cards need short previews with a word limit and visual line clamp; full imported descriptions belong on detail pages.
 
+Book descriptions should support readable paragraphs, headings and lists in the admin editor and on public detail pages. Keep the short description concise; do not ask editors to remove useful chapter details merely to fix layout.
+
 Scan & Pay is an optional admin-configured checkout method. Customers must upload a payment screenshot, and an administrator must verify it before an order is marked paid.
 
 The client requested an Internship navigation area with an Explore Internships landing page listing available programs and a Verify Certificate entry. Keep the approved public design language and do not invent live programs.
