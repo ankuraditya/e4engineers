@@ -73,4 +73,27 @@ final class InternshipCertificateTest extends TestCase
         $this->postJson('/api/v1/internships/certificates/download', ['mobile' => '9876543210', 'date_of_birth' => '2000-01-15'])->assertNotFound();
         $this->postJson('/api/v1/internships/certificates/download', ['mobile' => '9876543211', 'date_of_birth' => '2000-01-16'])->assertOk();
     }
+
+    public function test_admin_can_delete_certificate_and_its_pdf(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('super-admin');
+        $certificate = InternshipCertificate::create([
+            'candidate_name' => 'Candidate Three',
+            'program_title' => 'Civil Engineering Internship',
+            'mobile_last_four' => '3210',
+            'lookup_hash' => InternshipCertificate::lookupHash('9876543210', '2000-01-15'),
+            'file_path' => 'internship-certificates/candidate-three.pdf',
+            'file_name' => 'E4ENGINEERS-Internship-Certificate.pdf',
+        ]);
+        Storage::disk('local')->put($certificate->file_path, '%PDF-test');
+
+        $this->deleteJson("/api/v1/admin/internship-certificates/{$certificate->id}")->assertUnauthorized();
+        Storage::disk('local')->assertExists($certificate->file_path);
+
+        $this->actingAs($admin, 'web')->deleteJson("/api/v1/admin/internship-certificates/{$certificate->id}")->assertOk();
+        $this->assertDatabaseMissing('internship_certificates', ['id' => $certificate->id]);
+        Storage::disk('local')->assertMissing($certificate->file_path);
+        $this->postJson('/api/v1/internships/certificates/download', ['mobile' => '9876543210', 'date_of_birth' => '2000-01-15'])->assertNotFound();
+    }
 }

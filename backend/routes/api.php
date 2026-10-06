@@ -286,6 +286,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
             Route::get('/internship-certificates', [AdminInternshipCertificateController::class, 'index'])->middleware('permission:careers.view');
             Route::post('/internship-certificates', [AdminInternshipCertificateController::class, 'store'])->middleware('permission:careers.manage');
             Route::patch('/internship-certificates/{certificate}', [AdminInternshipCertificateController::class, 'update'])->middleware('permission:careers.manage');
+            Route::delete('/internship-certificates/{certificate}', [AdminInternshipCertificateController::class, 'destroy'])->middleware('permission:careers.manage');
             Route::post('/career-openings', [OperationsController::class, 'saveJob'])->middleware('permission:careers.manage');
             Route::put('/career-openings/{job}', [OperationsController::class, 'saveJob'])->middleware('permission:careers.manage');
             Route::delete('/career-openings/{job}', [OperationsController::class, 'deleteJob'])->middleware('permission:careers.manage');

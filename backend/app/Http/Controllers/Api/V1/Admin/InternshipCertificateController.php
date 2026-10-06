@@ -82,4 +82,13 @@ class InternshipCertificateController extends Controller
 
         return response()->json(['data' => $certificate->refresh(), 'message' => 'Certificate updated.']);
     }
+
+    public function destroy(InternshipCertificate $certificate): JsonResponse
+    {
+        $path = $certificate->file_path;
+        $certificate->delete();
+        Storage::disk('local')->delete($path);
+
+        return response()->json(['message' => 'Certificate deleted.']);
+    }
 }

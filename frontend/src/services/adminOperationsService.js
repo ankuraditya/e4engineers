@@ -6,5 +6,5 @@ export const adminOperationsService={
  workshops:()=>request('/workshops?per_page=100'), saveWorkshop:(body,id)=>request(id?`/workshops/${id}`:'/workshops',{method:id?'PUT':'POST',body,csrf:true}), deleteWorkshop:id=>request(`/workshops/${id}`,{method:'DELETE',csrf:true}),
  jobs:()=>request('/career-openings?per_page=100'), saveJob:(body,id)=>request(id?`/career-openings/${id}`:'/career-openings',{method:id?'PUT':'POST',body,csrf:true}), deleteJob:id=>request(`/career-openings/${id}`,{method:'DELETE',csrf:true}),
  applications:()=>request('/career-applications'), updateApplication:(id,body)=>request(`/career-applications/${id}`,{method:'PATCH',body,csrf:true}),
- certificates:()=>request('/internship-certificates'), addCertificate:form=>request('/internship-certificates',{method:'POST',body:form,csrf:true}), updateCertificate:(id,form)=>{form.set('_method','PATCH');return request(`/internship-certificates/${id}`,{method:'POST',body:form,csrf:true})},
+ certificates:()=>request('/internship-certificates'), addCertificate:form=>request('/internship-certificates',{method:'POST',body:form,csrf:true}), updateCertificate:(id,form)=>{form.set('_method','PATCH');return request(`/internship-certificates/${id}`,{method:'POST',body:form,csrf:true})}, deleteCertificate:id=>request(`/internship-certificates/${id}`,{method:'DELETE',csrf:true}),
 };
