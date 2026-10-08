@@ -7,9 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\OrderResource;
 use App\Models\DigitalEntitlement;
 use App\Models\Order;
+use App\Models\User;
+use App\Models\WebsiteSetting;
+use App\Services\ReferralService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -19,6 +23,8 @@ class OrderController extends Controller
     public function dashboard(Request $request): JsonResponse
     {
         $orders = Order::query()->where('user_id', $request->user()->id);
+        $user = $request->user();
+        $referralCode = app(ReferralService::class)->codeFor($user);
 
         return $this->successResponse([
             'total_orders' => (clone $orders)->count(),
@@ -26,6 +32,14 @@ class OrderController extends Controller
             'delivered_orders' => (clone $orders)->where('status', OrderStatus::Delivered->value)->count(),
             'digital_resources' => DigitalEntitlement::query()->forUser($request->user())->valid()->count(),
             'recent_orders' => OrderResource::collection((clone $orders)->with('items')->latest('placed_at')->limit(3)->get())->resolve(),
+            'referral' => [
+                'code' => $referralCode,
+                'reward_amount_rupees' => (int) (WebsiteSetting::query()->where('key', 'referral_reward_rupees')->value('value') ?? 100),
+                'registered' => User::query()->where('referred_by_user_id', $user->id)->count(),
+                'rewarded' => DB::table('referral_rewards')->where('referrer_user_id', $user->id)->whereNull('revoked_at')->count(),
+                'store_credit_rupees' => number_format(max(0, DB::table('store_credit_entries')->where('user_id', $user->id)->sum('amount_paise')) / 100, 2, '.', ''),
+                'rewards' => DB::table('referral_rewards')->join('users', 'users.id', '=', 'referral_rewards.referred_user_id')->where('referrer_user_id', $user->id)->whereNull('referral_rewards.revoked_at')->orderByDesc('credited_at')->limit(10)->get(['users.name', 'referral_rewards.amount_paise', 'referral_rewards.credited_at']),
+            ],
         ]);
     }
 

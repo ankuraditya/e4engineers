@@ -15,7 +15,7 @@ class OrderResource extends JsonResource
             'status' => $this->status->value, 'payment_status' => $this->payment_status->value,
             'shipping_status' => $this->shipping_status->value, 'payment_method' => $this->payment_method,
             'currency' => $this->currency,
-            'pricing' => ['subtotal' => $this->subtotal, 'discount' => $this->discount_total, 'shipping' => $this->shipping_total, 'cod_charge' => $this->cod_charge, 'tax' => $this->tax_total, 'total' => $this->grand_total],
+            'pricing' => ['subtotal' => $this->subtotal, 'discount' => $this->discount_total, 'shipping' => $this->shipping_total, 'cod_charge' => $this->cod_charge, 'tax' => $this->tax_total, 'store_credit' => $this->store_credit_total, 'total' => $this->grand_total],
             'coupon' => $this->coupon_snapshot, 'shipping' => $this->shipping_snapshot,
             'shipment' => $this->whenLoaded('shipment', fn () => $this->shipment ? ['status' => $this->shipment->status->value, 'courier_name' => $this->shipment->courier_name ?: $this->shipment->provider?->name, 'awb_number' => $this->shipment->awb_number, 'estimated_delivery_date' => $this->shipment->estimated_delivery_date, 'last_tracked_at' => $this->shipment->last_tracked_at] : null),
             'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => ['book_id' => $item->book_id, 'sku' => $item->sku, 'title' => $item->title, 'slug' => $item->slug, 'authors' => $item->authors, 'cover_url' => $item->cover_url, 'quantity' => $item->quantity, 'unit_price' => $item->unit_price, 'discount' => $item->discount_total, 'line_total' => $item->line_total])),

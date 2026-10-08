@@ -13,6 +13,7 @@ use App\Models\PaymentSetting;
 use App\Models\PaymentTransaction;
 use App\Services\InventoryService;
 use App\Services\InvoiceService;
+use App\Services\ReferralService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -84,6 +85,7 @@ final class PaymentService
             $attempt->update(['status' => 'succeeded', 'provider_payment_id' => $providerPaymentId]);
             PaymentTransaction::firstOrCreate(['payment_attempt_id' => $attempt->id, 'type' => 'payment', 'provider_transaction_id' => $providerPaymentId], ['order_id' => $order->id, 'provider_code' => $attempt->provider->code, 'status' => 'succeeded', 'amount' => $attempt->amount, 'currency' => $attempt->currency, 'payload' => $this->sanitize($payload)]);
             $order->update(['payment_status' => PaymentStatus::Paid, 'status' => OrderStatus::Confirmed, 'inventory_finalized_at' => now()]);
+            app(ReferralService::class)->awardForPaidOrder($order);
             $order->histories()->create(['status_type' => 'payment', 'from_status' => PaymentStatus::Pending->value, 'to_status' => PaymentStatus::Paid->value, 'note' => 'Payment verified server-side']);
             $fresh = $attempt->refresh();
             DB::afterCommit(function () use ($fresh): void {

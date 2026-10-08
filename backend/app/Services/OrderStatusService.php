@@ -26,6 +26,15 @@ final class OrderStatusService
             }
             $from = $order->status;
             if ($target === OrderStatus::Cancelled && ! $order->inventory_restored_at) {
+                $spent = DB::table('store_credit_entries')->where('order_id', $order->id)->where('reason', 'order_redemption')->first();
+                if ($spent) {
+                    DB::table('store_credit_entries')->where('id', $spent->id)->update(['amount_paise' => 0, 'reason' => 'cancelled_redemption', 'updated_at' => now()]);
+                }
+                $reward = DB::table('referral_rewards')->where('qualifying_order_id', $order->id)->whereNull('revoked_at')->first();
+                if ($reward) {
+                    DB::table('referral_rewards')->where('id', $reward->id)->update(['revoked_at' => now(), 'updated_at' => now()]);
+                    DB::table('store_credit_entries')->where('referral_reward_id', $reward->id)->update(['amount_paise' => 0, 'reason' => 'revoked_referral', 'updated_at' => now()]);
+                }
                 foreach ($order->items()->with('book')->get() as $item) {
                     if ($item->book) {
                         if ($order->inventory_reserved_at && ! $order->inventory_finalized_at && ! $order->inventory_released_at) {

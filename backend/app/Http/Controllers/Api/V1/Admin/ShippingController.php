@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Exceptions\ShippingProviderException;
 use App\Http\Controllers\Controller;
 use App\Models\ShippingAuditLog;
 use App\Models\ShippingPickupLocation;
@@ -70,6 +71,9 @@ class ShippingController extends Controller
         try {
             $result = $this->manager->adapter($provider->code)->testConnection($provider);
             $provider->update(['connection_status' => 'connected', 'last_connection_test_at' => now(), 'last_connection_error' => null]);
+        } catch (ShippingProviderException $e) {
+            $result = ['connected' => false, 'provider' => $provider->code, 'message' => $e->getMessage()];
+            $provider->update(['connection_status' => 'error', 'last_connection_test_at' => now(), 'last_connection_error' => $e->getMessage()]);
         } catch (\Throwable $e) {
             $result = ['connected' => false, 'provider' => $provider->code, 'message' => 'Connection failed.'];
             $provider->update(['connection_status' => 'error', 'last_connection_test_at' => now(), 'last_connection_error' => 'Authentication or provider connection failed.']);

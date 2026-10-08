@@ -32,7 +32,7 @@ class NimbusPostShippingProvider implements ShippingProviderInterface
             $r = Http::timeout(12)->post($this->base($p).'/users/login', ['email' => $c['email'] ?? '', 'password' => $c['password'] ?? '']);
             $token = $r->json('data.token') ?? $r->json('token');
             if (! $r->successful() || ! $token) {
-                throw new ShippingProviderException('PROVIDER_AUTH_FAILED', 'Unable to authenticate with NimbusPost.');
+                throw new ShippingProviderException('PROVIDER_AUTH_FAILED', 'NimbusPost rejected the API user credentials. Generate API User Email and Password in NimbusPost Settings → API.');
             }
 
             return $token;

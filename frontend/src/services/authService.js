@@ -4,8 +4,8 @@ export const authService = {
   async login({ identity, password, remember = false }) {
     return apiRequest("/auth/login", { method: "POST", csrf: true, body: { login: identity, password, remember } });
   },
-  async register({ name, email, mobile, password, passwordConfirmation }) {
-    return apiRequest("/auth/register", { method: "POST", csrf: true, body: { name, email, mobile, password, password_confirmation: passwordConfirmation } });
+  async register({ name, email, mobile, password, passwordConfirmation, referralCode }) {
+    return apiRequest("/auth/register", { method: "POST", csrf: true, body: { name, email, mobile, password, password_confirmation: passwordConfirmation, referral_code: referralCode || null } });
   },
   async logout() {
     return apiRequest("/auth/logout", { method: "POST", csrf: true });

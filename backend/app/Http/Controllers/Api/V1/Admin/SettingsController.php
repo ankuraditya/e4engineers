@@ -36,6 +36,9 @@ class SettingsController extends Controller
                 if ($def['type'] === 'boolean' && ! in_array($value, ['0', '1'], true)) {
                     throw ValidationException::withMessages(["settings.{$item['key']}" => 'Must be on or off.']);
                 }
+                if ($def['type'] === 'integer' && (! ctype_digit((string) $value) || (int) $value > 10000)) {
+                    throw ValidationException::withMessages(["settings.{$item['key']}" => 'Enter a whole rupee amount from 0 to 10000.']);
+                }
                 if ($def['type'] === 'email' && $value && ! filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     throw ValidationException::withMessages(["settings.{$item['key']}" => 'Must be a valid email address.']);
                 }if ($def['type'] === 'url' && $value && ! filter_var($value, FILTER_VALIDATE_URL)) {

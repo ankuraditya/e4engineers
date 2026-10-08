@@ -27,8 +27,8 @@ class ShippingProvider extends Model
         $c = $this->configuration ?? [];
         $out = [];
         foreach ($c as $k => $v) {
-            $out[$k] = in_array($k, ['password', 'api_key', 'api_secret'], true) ? null : $v;
-        }foreach (['password', 'api_key', 'api_secret'] as $k) {
+            $out[$k] = in_array($k, ['password', 'api_key', 'api_secret', 'webhook_secret'], true) ? null : $v;
+        }foreach (['password', 'api_key', 'api_secret', 'webhook_secret'] as $k) {
             $out[$k.'_configured'] = ! empty($c[$k]);
         }
 

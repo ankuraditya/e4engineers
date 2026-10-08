@@ -16,6 +16,7 @@ use App\Services\Shipping\NimbusPostShippingProvider;
 use Database\Seeders\AuthorizationSeeder;
 use Database\Seeders\ShippingProviderSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -126,6 +127,25 @@ final class ShippingManagementTest extends TestCase
         $this->assertTrue($adapter->testConnection($p)['connected']);
         $rates = $adapter->rates($p, ['origin_postal_code' => '110001', 'destination_postal_code' => '560001', 'weight_grams' => 500, 'weight_kg' => '0.500', 'declared_value' => '500.00', 'cod' => false]);
         $this->assertSame('NIMBUSPOST', $rates[0]['provider']);
+    }
+
+    public function test_nimbuspost_authentication_failure_explains_api_user_credentials_without_exposing_secrets(): void
+    {
+        $provider = ShippingProvider::where('code', 'NIMBUSPOST')->first();
+        $provider->update(['configuration' => ['email' => 'api@example.com', 'password' => 'private-password', 'webhook_secret' => 'private-webhook-secret']]);
+        $this->assertTrue($provider->maskedConfiguration()['webhook_secret_configured']);
+        $this->assertNull($provider->maskedConfiguration()['webhook_secret']);
+        Cache::forget('shipping:nimbuspost:'.$provider->id.':auth-token');
+        Http::fake(['*/users/login' => Http::response(['status' => false, 'message' => 'provider details'], 200)]);
+
+        $response = $this->actingAs($this->admin())->postJson("/api/v1/admin/shipping/providers/$provider->id/test-connection")
+            ->assertOk()
+            ->assertJsonPath('data.connected', false);
+
+        $this->assertStringContainsString('API user credentials', $response->json('data.message'));
+        $this->assertStringNotContainsString('private-password', $response->getContent());
+        $this->assertStringNotContainsString('provider details', $response->getContent());
+        $this->assertSame('error', $provider->fresh()->connection_status);
     }
 
     public function test_customer_cannot_access_admin_shipping_and_secrets_never_appear(): void

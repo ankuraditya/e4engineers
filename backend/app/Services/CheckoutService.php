@@ -98,6 +98,14 @@ final class CheckoutService
             $subtotal = $this->cents($cartData['summary']['subtotal']);
             $discount = $this->cents($cartData['summary']['coupon_discount']);
             $grandTotal = $subtotal - $discount + $shipping + $codCharge;
+            $credit = 0;
+            if (($data['use_store_credit'] ?? false) && $request->user()) {
+                // Lock the account to serialize concurrent checkouts spending the same credit.
+                User::query()->whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
+                $balance = (int) DB::table('store_credit_entries')->where('user_id', $request->user()->id)->sum('amount_paise');
+                $credit = max(0, min($balance, $grandTotal - 100));
+            }
+            $grandTotal -= $credit;
             $order = Order::create([
                 'order_number' => $this->orderNumber(), 'user_id' => $customer?->id, 'cart_id' => $lockedCart->id,
                 'guest_email' => $request->user() ? null : $contact['email'], 'guest_mobile' => $request->user() ? null : $contact['mobile'],
@@ -106,10 +114,14 @@ final class CheckoutService
                 'subtotal' => $this->money($subtotal), 'discount_total' => $this->money($discount),
                 'shipping_total' => $this->money($shipping), 'cod_charge' => $this->money($codCharge), 'tax_total' => '0.00',
                 'grand_total' => $this->money($grandTotal), 'coupon_id' => $lockedCart->coupon_id,
+                'store_credit_total' => $this->money($credit),
                 'coupon_snapshot' => $cartData['coupon'], 'shipping_quote_id' => $quote->id,
                 'shipping_snapshot' => ['provider' => $quote->provider_code, 'courier_code' => $quote->courier_code, 'courier_name' => $quote->courier_name, 'estimated_delivery' => $quote->estimated_delivery, 'quoted_at' => $quote->quoted_at],
                 'idempotency_key' => $data['idempotency_key'], 'guest_access_token_hash' => hash('sha256', $accessToken), 'guest_access_token_encrypted' => $accessToken, 'placed_at' => now(),
             ]);
+            if ($credit > 0) {
+                DB::table('store_credit_entries')->insert(['user_id' => $request->user()->id, 'order_id' => $order->id, 'amount_paise' => -$credit, 'reason' => 'order_redemption', 'created_at' => now(), 'updated_at' => now()]);
+            }
 
             $remainingDiscount = $discount;
             $items = $lockedCart->items()->with(['book.inventory', 'book.authors', 'book.cover'])->orderBy('id')->get();

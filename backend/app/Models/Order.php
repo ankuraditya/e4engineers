@@ -62,7 +62,7 @@ class Order extends Model
             'shipping_snapshot' => 'array', 'placed_at' => 'datetime', 'cancelled_at' => 'datetime', 'inventory_restored_at' => 'datetime', 'inventory_reserved_at' => 'datetime', 'inventory_finalized_at' => 'datetime', 'inventory_released_at' => 'datetime',
             'guest_access_token_encrypted' => 'encrypted',
             'subtotal' => 'decimal:2', 'discount_total' => 'decimal:2', 'shipping_total' => 'decimal:2',
-            'cod_charge' => 'decimal:2', 'tax_total' => 'decimal:2', 'grand_total' => 'decimal:2',
+            'cod_charge' => 'decimal:2', 'tax_total' => 'decimal:2', 'grand_total' => 'decimal:2', 'store_credit_total' => 'decimal:2',
         ];
     }
 }

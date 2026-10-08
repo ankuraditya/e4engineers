@@ -36,6 +36,7 @@ class PlaceOrderRequest extends FormRequest
             'shipping_quote_id' => ['required', 'uuid'],
             'payment_method' => ['required', Rule::in(['cod', 'scanpay', 'razorpay', 'payu', 'cashfree'])],
             'idempotency_key' => ['required', 'string', 'max:100'],
+            'use_store_credit' => ['sometimes', 'boolean'],
         ];
     }
 }

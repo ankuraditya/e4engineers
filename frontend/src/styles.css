@@ -703,3 +703,13 @@ body.page-loader-active{overflow:hidden}.global-page-loader{position:fixed;z-ind
 @media(max-width:650px){.admin-book-disciplines-options{grid-template-columns:1fr 1fr}}
 .admin-coupon-choices{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;max-height:220px;overflow:auto;padding:13px;border:1px solid #d7e2ec;border-radius:8px}.admin-coupon-choices legend{padding:0 5px;color:#3f5872;font-size:.75rem;font-weight:750}.admin-coupon-choices label{display:flex;align-items:center;gap:8px;padding:6px!important;font-size:.75rem}.admin-coupon-choices input{flex:0 0 auto}.admin-coupon-choices p{grid-column:1/-1;color:#6b819a;font-size:.75rem}
 .admin-book-save-error{flex:1;margin-right:auto;padding:9px 12px;border:1px solid #f2b7b7;border-radius:8px;background:#fff4f4;color:#9d2525;font-size:.78rem;line-height:1.4}
+.referral-panel{padding:20px;border:1px solid #cbdff2;border-radius:12px;background:#f5faff}
+.referral-panel>p{margin:0 0 15px;color:#49627e;font-size:14px;line-height:1.5}
+.referral-panel>label{display:grid;gap:7px;margin-bottom:10px;color:#173b65;font-size:13px;font-weight:700}
+.referral-panel>label input{width:100%;min-height:42px;padding:9px 12px;border:1px solid #bed4eb;border-radius:7px;background:#fff;color:#0b3766;font-size:13px}
+.referral-panel .account-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+.referral-panel .orders-table{margin-top:15px;background:#fff}
+.referral-panel .orders-table>div{grid-template-columns:1fr 1fr auto;font-size:12px}
+.admin-order-list>div{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid #eef2f6}
+.admin-order-list>div strong{color:#173a60;font-size:12px}.admin-order-list>div b{margin-left:auto;color:#086bd2}
+@media(max-width:650px){.referral-panel .account-stats{grid-template-columns:1fr}.referral-panel .orders-table>div{grid-template-columns:1fr auto}}

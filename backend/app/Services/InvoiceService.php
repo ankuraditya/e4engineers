@@ -37,6 +37,7 @@ class InvoiceService
                 'customer_snapshot' => ['name' => $address['name'], 'email' => $address['email'], 'mobile' => $address['mobile']],
                 'billing_address_snapshot' => $address, 'shipping_address_snapshot' => $address,
                 'subtotal' => $order->subtotal, 'discount_amount' => $order->discount_total,
+                'store_credit_amount' => $order->store_credit_total,
                 'shipping_amount' => $order->shipping_total, 'cod_charge' => $order->cod_charge,
                 'taxable_amount' => null, 'total_tax' => $order->tax_total,
                 'grand_total' => $order->grand_total, 'payment_method' => $order->payment_method,

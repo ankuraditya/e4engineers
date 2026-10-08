@@ -204,6 +204,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
             Route::get('/orders', [AdminOrderController::class, 'index'])->middleware('permission:orders.view');
             Route::get('/orders/{orderNumber}', [AdminOrderController::class, 'show'])->middleware('permission:orders.view');
             Route::patch('/orders/{orderNumber}/status', [AdminOrderController::class, 'status'])->middleware('permission:orders.update-status');
+            Route::post('/orders/{orderNumber}/cod-collected', [AdminOrderController::class, 'collectCod'])->middleware('permission:orders.update-status');
             Route::get('/payments/settings', [PaymentSettingsController::class, 'settings'])->middleware('permission:payment-settings.view');
             Route::put('/payments/settings', [PaymentSettingsController::class, 'updateSettings'])->middleware('permission:payment-settings.update');
             Route::get('/payments/providers', [PaymentSettingsController::class, 'providers'])->middleware('permission:payment-providers.view');
