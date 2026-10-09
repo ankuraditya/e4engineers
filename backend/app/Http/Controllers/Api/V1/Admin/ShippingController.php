@@ -137,8 +137,8 @@ class ShippingController extends Controller
             return $this->errorResponse('Fallback provider must differ from default provider.', status: 422);
         }
         if ($d['self_collect_enabled'] ?? $settings->self_collect_enabled) {
-            $locationId = $d['self_collect_location_id'] ?? $settings->self_collect_location_id;
-            $hours = $d['self_collect_hours'] ?? $settings->self_collect_hours;
+            $locationId = array_key_exists('self_collect_location_id', $d) ? $d['self_collect_location_id'] : $settings->self_collect_location_id;
+            $hours = array_key_exists('self_collect_hours', $d) ? $d['self_collect_hours'] : $settings->self_collect_hours;
             if (! $locationId || blank($hours) || ! ShippingPickupLocation::query()->whereKey($locationId)->where('is_active', true)->exists()) {
                 return $this->errorResponse('Choose an active collection location and add collection hours before enabling Self Collect.', status: 422);
             }

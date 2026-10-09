@@ -36,6 +36,17 @@ final class SelfCollectionTest extends TestCase
         $this->getJson('/api/v1/shipping/self-collection')->assertOk()->assertJsonPath('data', null);
     }
 
+    public function test_admin_must_configure_a_valid_location_before_enabling_collection(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('super-admin');
+        $this->actingAs($admin)->putJson('/api/v1/admin/shipping/settings', ['self_collect_enabled' => true])->assertUnprocessable();
+        $location = $this->location();
+        $this->putJson('/api/v1/admin/shipping/settings', ['self_collect_enabled' => true, 'self_collect_location_id' => $location->id, 'self_collect_hours' => 'Weekdays, 10 am–5 pm'])->assertOk();
+        $this->putJson('/api/v1/admin/shipping/settings', ['self_collect_location_id' => null])->assertUnprocessable();
+        $this->putJson('/api/v1/admin/shipping/settings', ['self_collect_hours' => null])->assertUnprocessable();
+    }
+
     public function test_guest_can_place_zero_shipping_self_collect_order_and_admin_can_complete_it(): void
     {
         Notification::fake();
