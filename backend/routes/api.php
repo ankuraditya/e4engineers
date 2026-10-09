@@ -131,6 +131,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
     Route::post('/cart/coupon', [CartCouponController::class, 'store'])->middleware('throttle:10,1');
     Route::delete('/cart/coupon', [CartCouponController::class, 'destroy'])->middleware('throttle:20,1');
     Route::post('/shipping/serviceability', [ShippingController::class, 'serviceability'])->middleware('throttle:20,1');
+    Route::get('/shipping/self-collection', [ShippingController::class, 'selfCollection'])->middleware('throttle:30,1');
     Route::post('/cart/shipping/quote', [ShippingController::class, 'quote'])->middleware('throttle:20,1');
     Route::post('/checkout/shipping-options', [ShippingController::class, 'quote'])->middleware(['auth:sanctum', 'throttle:20,1']);
     Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->middleware('throttle:10,1');
@@ -205,6 +206,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
             Route::get('/orders/{orderNumber}', [AdminOrderController::class, 'show'])->middleware('permission:orders.view');
             Route::patch('/orders/{orderNumber}/status', [AdminOrderController::class, 'status'])->middleware('permission:orders.update-status');
             Route::post('/orders/{orderNumber}/cod-collected', [AdminOrderController::class, 'collectCod'])->middleware('permission:orders.update-status');
+            Route::post('/orders/{orderNumber}/pickup-ready', [AdminOrderController::class, 'pickupReady'])->middleware('permission:orders.update-status');
+            Route::post('/orders/{orderNumber}/pickup-collected', [AdminOrderController::class, 'pickupCollected'])->middleware('permission:orders.update-status');
             Route::get('/payments/settings', [PaymentSettingsController::class, 'settings'])->middleware('permission:payment-settings.view');
             Route::put('/payments/settings', [PaymentSettingsController::class, 'updateSettings'])->middleware('permission:payment-settings.update');
             Route::get('/payments/providers', [PaymentSettingsController::class, 'providers'])->middleware('permission:payment-providers.view');

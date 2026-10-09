@@ -15,7 +15,12 @@ class ShippingController extends Controller
 
     public function quote(Request $request): JsonResponse
     {
-        $data = $request->validate(['address_id' => ['nullable', 'integer'], 'postal_code' => ['nullable', 'regex:/^[1-9][0-9]{5}$/'], 'payment_mode' => ['nullable', 'in:prepaid,cod']]);
+        $data = $request->validate(['address_id' => ['nullable', 'integer'], 'postal_code' => ['nullable', 'regex:/^[1-9][0-9]{5}$/'], 'payment_mode' => ['nullable', 'in:prepaid,cod'], 'delivery_method' => ['nullable', 'in:courier,self_collect']]);
+        if (($data['delivery_method'] ?? 'courier') === 'self_collect') {
+            $result = $this->shipping->selfCollectQuote($this->carts->resolve($request), ($data['payment_mode'] ?? 'prepaid') === 'cod');
+
+            return response()->json(['success' => true, 'message' => 'Self Collect available.', 'data' => $result]);
+        }
         $postal = $this->postal($request, $data);
         $result = $this->shipping->quote($this->carts->resolve($request), $postal, ($data['payment_mode'] ?? 'prepaid') === 'cod');
 
@@ -25,6 +30,11 @@ class ShippingController extends Controller
     public function serviceability(Request $request): JsonResponse
     {
         return $this->quote($request);
+    }
+
+    public function selfCollection(): JsonResponse
+    {
+        return response()->json(['success' => true, 'data' => $this->shipping->selfCollection()]);
     }
 
     private function postal(Request $request, array $data): string

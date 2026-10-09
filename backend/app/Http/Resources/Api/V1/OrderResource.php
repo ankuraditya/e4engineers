@@ -13,7 +13,7 @@ class OrderResource extends JsonResource
             'id' => $this->when($request->is('api/v1/admin/*'), $this->id),
             'order_number' => $this->order_number, 'placed_at' => $this->placed_at,
             'status' => $this->status->value, 'payment_status' => $this->payment_status->value,
-            'shipping_status' => $this->shipping_status->value, 'payment_method' => $this->payment_method,
+            'shipping_status' => $this->shipping_status->value, 'delivery_method' => $this->delivery_method, 'pickup_ready_at' => $this->pickup_ready_at, 'picked_up_at' => $this->picked_up_at, 'payment_method' => $this->payment_method,
             'currency' => $this->currency,
             'pricing' => ['subtotal' => $this->subtotal, 'discount' => $this->discount_total, 'shipping' => $this->shipping_total, 'cod_charge' => $this->cod_charge, 'tax' => $this->tax_total, 'store_credit' => $this->store_credit_total, 'total' => $this->grand_total],
             'coupon' => $this->coupon_snapshot, 'shipping' => $this->shipping_snapshot,

@@ -17,6 +17,7 @@ use App\Models\PaymentProvider;
 use App\Models\PaymentSetting;
 use App\Models\PaymentTransaction;
 use App\Models\ShippingQuote;
+use App\Services\Shipping\ShippingService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,15 +78,25 @@ final class CheckoutService
                     throw ValidationException::withMessages(['payment_method' => ['The selected payment gateway is unavailable.']]);
                 }
             }
-            $address = $this->resolveAddress($request, $customer, $data, $accountCreated);
+            $deliveryMethod = $data['delivery_method'] ?? 'courier';
+            $pickup = $deliveryMethod === 'self_collect' ? app(ShippingService::class)->selfCollection() : null;
+            if ($deliveryMethod === 'self_collect' && ! $pickup) {
+                throw ValidationException::withMessages(['delivery_method' => ['Self Collect is no longer available.']]);
+            }
+            $address = $pickup ? [
+                'full_name' => $contact['name'], 'mobile' => $contact['mobile'],
+                'address_line_1' => $pickup['address_line_1'], 'address_line_2' => $pickup['address_line_2'],
+                'city' => $pickup['city'], 'state' => $pickup['state'], 'postal_code' => $pickup['postal_code'],
+                'country_code' => $pickup['country_code'],
+            ] : $this->resolveAddress($request, $customer, $data, $accountCreated);
             $cartData = $this->carts->payload($lockedCart->refresh());
             if (! $cartData['checkout_allowed']) {
                 throw ValidationException::withMessages(['cart' => ['Your cart changed. Review it before placing the order.']]);
             }
 
             $quote = ShippingQuote::whereKey($data['shipping_quote_id'])->where('cart_id', $lockedCart->id)->lockForUpdate()->first();
-            $expectedHash = hash('sha256', $lockedCart->id.'|'.$lockedCart->updated_at.'|'.$address['postal_code'].'|'.($online ? 0 : 1));
-            if (! $quote || $quote->expires_at->isPast() || ! hash_equals($quote->request_hash, $expectedHash) || (! $online && ! $quote->cod_available)) {
+            $expectedHash = hash('sha256', $lockedCart->id.'|'.$lockedCart->updated_at.'|'.($pickup ? 'pickup:'.$pickup['id'] : $address['postal_code']).'|'.($online ? 0 : 1));
+            if (! $quote || $quote->expires_at->isPast() || ! hash_equals($quote->request_hash, $expectedHash) || (! $online && ! $quote->cod_available) || ($pickup && ($quote->courier_code !== 'SELF_COLLECT' || ($quote->metadata['pickup']['id'] ?? null) !== $pickup['id'])) || (! $pickup && $quote->courier_code === 'SELF_COLLECT')) {
                 throw ValidationException::withMessages(['shipping_quote_id' => ['Shipping changed or expired. Calculate shipping again.']]);
             }
             if ($customer && ! $lockedCart->user_id) {
@@ -94,7 +105,7 @@ final class CheckoutService
             }
 
             $shipping = $this->cents($quote->charge);
-            $codCharge = $online ? 0 : $this->cents((string) $settings->cod_charge ?: $quote->cod_charge);
+            $codCharge = $online || $pickup ? 0 : $this->cents((string) $settings->cod_charge ?: $quote->cod_charge);
             $subtotal = $this->cents($cartData['summary']['subtotal']);
             $discount = $this->cents($cartData['summary']['coupon_discount']);
             $grandTotal = $subtotal - $discount + $shipping + $codCharge;
@@ -110,13 +121,13 @@ final class CheckoutService
                 'order_number' => $this->orderNumber(), 'user_id' => $customer?->id, 'cart_id' => $lockedCart->id,
                 'guest_email' => $request->user() ? null : $contact['email'], 'guest_mobile' => $request->user() ? null : $contact['mobile'],
                 'status' => $online ? OrderStatus::PaymentPending : OrderStatus::Confirmed, 'payment_status' => $online ? PaymentStatus::Pending : PaymentStatus::CodPending,
-                'shipping_status' => ShippingStatus::NotCreated, 'payment_method' => $data['payment_method'], 'currency' => $lockedCart->currency,
+                'shipping_status' => ShippingStatus::NotCreated, 'delivery_method' => $deliveryMethod, 'payment_method' => $data['payment_method'], 'currency' => $lockedCart->currency,
                 'subtotal' => $this->money($subtotal), 'discount_total' => $this->money($discount),
                 'shipping_total' => $this->money($shipping), 'cod_charge' => $this->money($codCharge), 'tax_total' => '0.00',
                 'grand_total' => $this->money($grandTotal), 'coupon_id' => $lockedCart->coupon_id,
                 'store_credit_total' => $this->money($credit),
                 'coupon_snapshot' => $cartData['coupon'], 'shipping_quote_id' => $quote->id,
-                'shipping_snapshot' => ['provider' => $quote->provider_code, 'courier_code' => $quote->courier_code, 'courier_name' => $quote->courier_name, 'estimated_delivery' => $quote->estimated_delivery, 'quoted_at' => $quote->quoted_at],
+                'shipping_snapshot' => ['provider' => $quote->provider_code, 'courier_code' => $quote->courier_code, 'courier_name' => $quote->courier_name, 'estimated_delivery' => $quote->estimated_delivery, 'quoted_at' => $quote->quoted_at, 'pickup' => $pickup],
                 'idempotency_key' => $data['idempotency_key'], 'guest_access_token_hash' => hash('sha256', $accessToken), 'guest_access_token_encrypted' => $accessToken, 'placed_at' => now(),
             ]);
             if ($credit > 0) {
@@ -166,7 +177,7 @@ final class CheckoutService
                 PaymentTransaction::create([
                     'payment_attempt_id' => $attempt->id, 'order_id' => $order->id, 'provider_code' => 'COD',
                     'type' => 'payment', 'status' => 'pending', 'amount' => $order->grand_total,
-                    'currency' => $order->currency, 'payload' => ['collection' => 'on_delivery'],
+                    'currency' => $order->currency, 'payload' => ['collection' => $pickup ? 'at_pickup' : 'on_delivery'],
                 ]);
             }
             $order->histories()->create(['status_type' => 'order', 'to_status' => $order->status->value, 'note' => $online ? 'Awaiting online payment' : 'Order placed']);

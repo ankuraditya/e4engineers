@@ -30,6 +30,7 @@ class ShipmentController extends Controller
 
     public function create(Request $request, Order $order, ShipmentService $service): JsonResponse
     {
+        abort_unless($order->delivery_method !== 'self_collect', 422, 'Self Collect orders do not require courier shipments.');
         $data = $request->validate(['provider' => 'nullable|in:NIMBUSPOST,SHIPROCKET', 'courier_code' => 'nullable|string|max:100', 'pickup_location_id' => 'nullable|exists:shipping_pickup_locations,id']);
 
         return $this->successResponse($service->create($order, $data['provider'] ?? null, $data['courier_code'] ?? null, $data['pickup_location_id'] ?? null), status: 201);

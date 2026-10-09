@@ -14,6 +14,62 @@ class ShippingService
 {
     public function __construct(private CartService $carts, private PackageCalculator $packages, private ShippingProviderManager $providers) {}
 
+    public function selfCollection(): ?array
+    {
+        $settings = ShippingSetting::current();
+        if (! $settings->self_collect_enabled || ! $settings->self_collect_location_id || blank($settings->self_collect_hours)) {
+            return null;
+        }
+
+        $location = ShippingPickupLocation::query()->whereKey($settings->self_collect_location_id)->where('is_active', true)->first();
+        if (! $location) {
+            return null;
+        }
+
+        return [
+            'id' => $location->id,
+            'name' => $location->name,
+            'contact_name' => $location->contact_name,
+            'phone' => $location->phone,
+            'address_line_1' => $location->address_line1,
+            'address_line_2' => $location->address_line2,
+            'city' => $location->city,
+            'state' => $location->state,
+            'postal_code' => $location->postal_code,
+            'country_code' => $location->country,
+            'hours' => $settings->self_collect_hours,
+        ];
+    }
+
+    public function selfCollectQuote(Cart $cart, bool $cod = false): array
+    {
+        $pickup = $this->selfCollection();
+        if (! $pickup) {
+            throw new ShippingProviderException('SELF_COLLECT_UNAVAILABLE', 'Self Collect is not currently available.');
+        }
+        $cartData = $this->carts->payload($cart);
+        if (! $cartData['checkout_allowed']) {
+            throw new ShippingProviderException('CART_NOT_READY', 'Resolve cart issues before checkout.');
+        }
+
+        $quote = ShippingQuote::create([
+            'id' => (string) Str::uuid(), 'cart_id' => $cart->id,
+            'provider_code' => 'E4ENGINEERS', 'courier_code' => 'SELF_COLLECT',
+            'courier_name' => 'Self Collect', 'charge' => '0.00', 'cod_charge' => '0.00',
+            'cod_available' => true, 'quoted_at' => now(), 'expires_at' => now()->addMinutes(15),
+            'request_hash' => hash('sha256', $cart->id.'|'.$cart->updated_at.'|pickup:'.$pickup['id'].'|'.($cod ? 1 : 0)),
+            'metadata' => ['source' => 'self_collect', 'pickup' => $pickup],
+        ]);
+        $option = ['quote_id' => $quote->id, 'provider' => $quote->provider_code,
+            'courier_code' => 'SELF_COLLECT', 'courier_name' => 'Self Collect',
+            'shipping_charge' => '0.00', 'cod_charge' => '0.00', 'cod_available' => true,
+            'estimated_delivery' => null, 'expires_at' => $quote->expires_at, 'pickup' => $pickup];
+
+        return ['serviceable' => true, 'options' => [$option], 'selected_quote' => $option,
+            'discounted_subtotal' => $cartData['summary']['discounted_subtotal'],
+            'shipping_charge' => '0.00', 'payable_before_order' => $cartData['summary']['discounted_subtotal']];
+    }
+
     public function quote(Cart $cart, string $postalCode, bool $cod = false): array
     {
         $settings = ShippingSetting::current();

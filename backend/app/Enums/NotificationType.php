@@ -10,6 +10,8 @@ enum NotificationType: string
     case EmailVerification = 'email_verification';
     case PasswordReset = 'password_reset';
     case OrderConfirmed = 'order_confirmed';
+    case SelfCollectAdminAlert = 'self_collect_admin_alert';
+    case SelfCollectReady = 'self_collect_ready';
     case OrderCancelled = 'order_cancelled';
     case PaymentSuccess = 'payment_success';
     case PaymentFailed = 'payment_failed';

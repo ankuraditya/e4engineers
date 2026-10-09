@@ -663,6 +663,7 @@ body.page-loader-active{overflow:hidden}.global-page-loader{position:fixed;z-ind
   background: #f5faff;
 }
 .scan-payment-panel img { width: 100%; aspect-ratio: 1; object-fit: contain; background: white; border: 1px solid #d6e2f0; border-radius: 8px; }
+.self-collect-details{margin-top:14px;padding:16px;border:1px solid #bdd7f3;border-radius:8px;background:#f2f8ff;color:#173a60;font-size:13px;line-height:1.6}.self-collect-details>strong{display:flex;align-items:center;gap:7px;color:#092d5c}.self-collect-details p{margin:9px 0}.self-collect-details small{display:block;color:#536c8c;font-size:12px}.admin-self-collect{display:grid;gap:14px;margin-top:24px;padding:20px;border:1px solid #d6e2f0;border-radius:10px;background:#f6faff}.admin-self-collect h3,.admin-self-collect p{margin:0}.admin-self-collect p,.admin-self-collect small{color:#536c8c}.admin-self-collect>.button{justify-self:start}
 .scan-payment-panel strong { display: block; color: #092d5c; margin-bottom: .4rem; }
 .scan-payment-panel p { margin: 0 0 1rem; color: #536c8c; line-height: 1.5; }
 .scan-payment-panel label { display: block; margin-top: .8rem; font-weight: 600; color: #123b6a; }

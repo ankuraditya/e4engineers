@@ -12,6 +12,7 @@ use App\Events\PaymentSucceeded;
 use App\Events\ShipmentCreated;
 use App\Events\ShipmentStatusChanged;
 use App\Models\Order;
+use App\Services\OperationalNotificationService;
 use App\Services\Notifications\NotificationManager;
 use Illuminate\Events\Dispatcher;
 
@@ -24,6 +25,13 @@ class TransactionalNotificationSubscriber
         $order = $event->order->loadMissing(['user', 'shippingAddress']);
         if ($order->payment_method === 'cod') {
             $this->sendOrder($order);
+        }
+        if ($order->delivery_method === 'self_collect') {
+            app(OperationalNotificationService::class)->admin(NotificationType::SelfCollectAdminAlert, $order, [
+                'order_number' => $order->order_number,
+                'payment_method' => $order->payment_method === 'cod' ? 'Pay at pickup' : strtoupper($order->payment_method),
+                'admin_url' => rtrim((string) config('e4engineers.frontend_url'), '/').'/admin/orders?order='.$order->order_number,
+            ]);
         }
     }
 

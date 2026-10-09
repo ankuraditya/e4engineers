@@ -131,11 +131,19 @@ class ShippingController extends Controller
     public function updateSettings(Request $r): JsonResponse
     {
         Gate::authorize('shipping.settings.update');
-        $d = $r->validate(['shipping_enabled' => 'sometimes|boolean', 'mode' => 'sometimes|in:live_provider,flat_rate,free,hybrid', 'fallback_provider_id' => 'nullable|exists:shipping_providers,id', 'automatic_fallback' => 'sometimes|boolean', 'fallback_to_flat_rate' => 'sometimes|boolean', 'free_shipping_enabled' => 'sometimes|boolean', 'free_shipping_threshold' => 'nullable|numeric|min:0', 'flat_shipping_enabled' => 'sometimes|boolean', 'flat_shipping_charge' => 'sometimes|numeric|min:0', 'provider_live_rates_enabled' => 'sometimes|boolean', 'show_delivery_estimate' => 'sometimes|boolean', 'default_package_weight_grams' => 'sometimes|integer|min:1', 'default_length_cm' => 'sometimes|numeric|gt:0', 'default_width_cm' => 'sometimes|numeric|gt:0', 'default_height_cm' => 'sometimes|numeric|gt:0', 'handling_days' => 'sometimes|integer|min:0|max:30', 'rate_markup_percentage' => 'sometimes|numeric|min:0|max:100', 'automatic_shipment_creation' => 'sometimes|boolean', 'automatic_awb_assignment' => 'sometimes|boolean', 'automatic_pickup_scheduling' => 'sometimes|boolean', 'automatic_label_generation' => 'sometimes|boolean', 'automatic_manifest_generation' => 'sometimes|boolean', 'default_pickup_location_id' => 'nullable|exists:shipping_pickup_locations,id', 'tracking_sync_minutes' => 'sometimes|integer|min:5|max:1440']);
+        $d = $r->validate(['self_collect_enabled' => 'sometimes|boolean', 'self_collect_location_id' => 'nullable|exists:shipping_pickup_locations,id', 'self_collect_hours' => 'nullable|string|max:255', 'shipping_enabled' => 'sometimes|boolean', 'mode' => 'sometimes|in:live_provider,flat_rate,free,hybrid', 'fallback_provider_id' => 'nullable|exists:shipping_providers,id', 'automatic_fallback' => 'sometimes|boolean', 'fallback_to_flat_rate' => 'sometimes|boolean', 'free_shipping_enabled' => 'sometimes|boolean', 'free_shipping_threshold' => 'nullable|numeric|min:0', 'flat_shipping_enabled' => 'sometimes|boolean', 'flat_shipping_charge' => 'sometimes|numeric|min:0', 'provider_live_rates_enabled' => 'sometimes|boolean', 'show_delivery_estimate' => 'sometimes|boolean', 'default_package_weight_grams' => 'sometimes|integer|min:1', 'default_length_cm' => 'sometimes|numeric|gt:0', 'default_width_cm' => 'sometimes|numeric|gt:0', 'default_height_cm' => 'sometimes|numeric|gt:0', 'handling_days' => 'sometimes|integer|min:0|max:30', 'rate_markup_percentage' => 'sometimes|numeric|min:0|max:100', 'automatic_shipment_creation' => 'sometimes|boolean', 'automatic_awb_assignment' => 'sometimes|boolean', 'automatic_pickup_scheduling' => 'sometimes|boolean', 'automatic_label_generation' => 'sometimes|boolean', 'automatic_manifest_generation' => 'sometimes|boolean', 'default_pickup_location_id' => 'nullable|exists:shipping_pickup_locations,id', 'tracking_sync_minutes' => 'sometimes|integer|min:5|max:1440']);
         $settings = ShippingSetting::current();
         if (isset($d['fallback_provider_id']) && $d['fallback_provider_id'] === $settings->default_provider_id) {
             return $this->errorResponse('Fallback provider must differ from default provider.', status: 422);
-        }$settings->update($d);
+        }
+        if ($d['self_collect_enabled'] ?? $settings->self_collect_enabled) {
+            $locationId = $d['self_collect_location_id'] ?? $settings->self_collect_location_id;
+            $hours = $d['self_collect_hours'] ?? $settings->self_collect_hours;
+            if (! $locationId || blank($hours) || ! ShippingPickupLocation::query()->whereKey($locationId)->where('is_active', true)->exists()) {
+                return $this->errorResponse('Choose an active collection location and add collection hours before enabling Self Collect.', status: 422);
+            }
+        }
+        $settings->update($d);
         $this->audit($r, null, 'shipping_settings_updated');
 
         return $this->successResponse($settings->refresh(), 'Shipping settings updated.');
