@@ -47,6 +47,7 @@ final class ReferralWalletTest extends TestCase
 
         $admin = User::factory()->create();
         $admin->assignRole('super-admin');
+        $this->app['auth']->forgetGuards();
         $this->actingAs($admin, 'web')->patchJson("/api/v1/admin/referral-withdrawals/{$id}", ['status' => 'rejected', 'admin_note' => 'Invalid UPI ID'])->assertOk();
         $this->actingAs($admin, 'web')->patchJson("/api/v1/admin/referral-withdrawals/{$id}", ['status' => 'rejected', 'admin_note' => 'Again'])->assertUnprocessable();
         $this->assertSame(10000, (int) DB::table('referral_wallet_entries')->where('user_id', $buyer->id)->sum('amount_paise'));
