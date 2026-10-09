@@ -34,6 +34,7 @@ final class OrderStatusService
                 if ($reward) {
                     DB::table('referral_rewards')->where('id', $reward->id)->update(['revoked_at' => now(), 'updated_at' => now()]);
                     DB::table('store_credit_entries')->where('referral_reward_id', $reward->id)->update(['amount_paise' => 0, 'reason' => 'revoked_referral', 'updated_at' => now()]);
+                    DB::table('referral_wallet_entries')->where('referral_reward_id', $reward->id)->update(['amount_paise' => 0, 'reason' => 'revoked_referral', 'updated_at' => now()]);
                 }
                 foreach ($order->items()->with('book')->get() as $item) {
                     if ($item->book) {

@@ -32,6 +32,7 @@ final class AdminDashboardController extends Controller
                 'career_applications' => CareerApplication::count(), 'notices' => Notice::count(),
                 'referral_signups' => User::whereNotNull('referred_by_user_id')->count(),
                 'referral_rewards' => DB::table('referral_rewards')->whereNull('revoked_at')->count(),
+                'withdrawal_requests' => DB::table('referral_withdrawals')->where('status', 'pending')->count(),
             ],
             'recent_orders' => Order::with('user')->latest('placed_at')->limit(5)->get(['id', 'order_number', 'user_id', 'guest_email', 'status', 'payment_status', 'delivery_method', 'pickup_ready_at', 'grand_total', 'currency', 'placed_at']),
             'referral_credit_issued_rupees' => number_format(DB::table('referral_rewards')->whereNull('revoked_at')->sum('amount_paise') / 100, 2, '.', ''),

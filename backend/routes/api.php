@@ -185,6 +185,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
         Route::patch('/account/addresses/{address}/default', [AddressController::class, 'setDefault']);
         Route::get('/account/orders', [AccountOrderController::class, 'index']);
         Route::get('/account/dashboard', [AccountOrderController::class, 'dashboard']);
+        Route::post('/account/referral-withdrawals', [App\Http\Controllers\Api\V1\Account\ReferralWalletController::class, 'withdraw'])->middleware('throttle:public-support');
         Route::get('/account/orders/{orderNumber}', [AccountOrderController::class, 'show']);
         Route::get('/account/payments', [AccountPaymentController::class, 'index']);
         Route::get('/account/notification-preferences', [NotificationPreferenceController::class, 'show']);
@@ -202,6 +203,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
             Route::get('/auth/me', [AdminAuthenticationController::class, 'me']);
             Route::post('/auth/logout', [AdminAuthenticationController::class, 'logout']);
             Route::get('/dashboard', AdminDashboardController::class)->middleware('permission:admin.dashboard.access');
+            Route::get('/referral-withdrawals', [App\Http\Controllers\Api\V1\Admin\ReferralWithdrawalController::class, 'index'])->middleware('permission:orders.view');
+            Route::patch('/referral-withdrawals/{id}', [App\Http\Controllers\Api\V1\Admin\ReferralWithdrawalController::class, 'update'])->middleware('permission:orders.update-status');
             Route::get('/orders', [AdminOrderController::class, 'index'])->middleware('permission:orders.view');
             Route::get('/orders/{orderNumber}', [AdminOrderController::class, 'show'])->middleware('permission:orders.view');
             Route::patch('/orders/{orderNumber}/status', [AdminOrderController::class, 'status'])->middleware('permission:orders.update-status');

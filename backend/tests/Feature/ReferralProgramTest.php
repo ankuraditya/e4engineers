@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\PaymentStatus;
 use App\Models\Order;
+use App\Models\Book;
 use App\Models\User;
 use App\Enums\OrderStatus;
 use App\Services\OrderStatusService;
@@ -28,7 +29,7 @@ final class ReferralProgramTest extends TestCase
     public function test_registration_attributes_a_valid_referral_and_rejects_unknown_codes(): void
     {
         $this->seed(AuthorizationSeeder::class);
-        $referrer = User::factory()->create();
+        $referrer = $this->bookBuyer();
         $code = app(ReferralService::class)->codeFor($referrer);
 
         $payload = [
@@ -43,14 +44,14 @@ final class ReferralProgramTest extends TestCase
         $this->postJson('/api/v1/auth/register', $payload)->assertCreated();
         $buyer = User::query()->where('email', 'student@example.com')->firstOrFail();
         $this->assertSame($referrer->id, $buyer->referred_by_user_id);
-        $this->assertNotEmpty($buyer->referral_code);
+        $this->assertNull($buyer->referral_code);
 
         $this->postJson('/api/v1/auth/register', [...$payload, 'email' => 'other@example.com', 'mobile' => '9876543211', 'referral_code' => 'UNKNOWN'])->assertUnprocessable()->assertJsonValidationErrors('referral_code');
     }
 
     public function test_only_the_first_paid_order_credits_the_referrer_once(): void
     {
-        $referrer = User::factory()->create();
+        $referrer = $this->bookBuyer();
         $buyer = User::factory()->create(['referred_by_user_id' => $referrer->id]);
         $unpaid = Order::factory()->create(['user_id' => $buyer->id]);
         $service = app(ReferralService::class);
@@ -64,22 +65,31 @@ final class ReferralProgramTest extends TestCase
         $service->awardForPaidOrder($later);
 
         $this->assertSame(1, DB::table('referral_rewards')->count());
-        $this->assertSame(10000, (int) DB::table('store_credit_entries')->where('user_id', $referrer->id)->sum('amount_paise'));
+        $this->assertSame(10000, (int) DB::table('referral_wallet_entries')->where('user_id', $referrer->id)->sum('amount_paise'));
     }
 
     public function test_cancelling_a_qualifying_order_revokes_credit_and_allows_the_next_purchase(): void
     {
-        $referrer = User::factory()->create();
+        $referrer = $this->bookBuyer();
         $buyer = User::factory()->create(['referred_by_user_id' => $referrer->id]);
         $first = Order::factory()->create(['user_id' => $buyer->id, 'payment_status' => PaymentStatus::Paid]);
         app(ReferralService::class)->awardForPaidOrder($first);
 
         app(OrderStatusService::class)->transition($first, OrderStatus::Cancelled, $referrer->id);
-        $this->assertSame(0, (int) DB::table('store_credit_entries')->where('user_id', $referrer->id)->sum('amount_paise'));
+        $this->assertSame(0, (int) DB::table('referral_wallet_entries')->where('user_id', $referrer->id)->sum('amount_paise'));
 
         $second = Order::factory()->create(['user_id' => $buyer->id, 'payment_status' => PaymentStatus::Paid, 'placed_at' => now()->addDay()]);
         app(ReferralService::class)->awardForPaidOrder($second);
         $this->assertSame(2, DB::table('referral_rewards')->count());
         $this->assertSame(1, DB::table('referral_rewards')->whereNull('revoked_at')->count());
+    }
+
+    private function bookBuyer(): User
+    {
+        $user = User::factory()->create();
+        $order = Order::factory()->create(['user_id' => $user->id, 'payment_status' => PaymentStatus::Paid]);
+        $book = Book::factory()->create();
+        $order->items()->create(['book_id' => $book->id, 'title' => $book->title, 'quantity' => 1, 'unit_price' => 499, 'line_total' => 499, 'product_snapshot' => []]);
+        return $user;
     }
 }

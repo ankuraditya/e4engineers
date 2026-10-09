@@ -15,6 +15,7 @@ return [
         'site_tagline' => ['group' => 'general', 'type' => 'string', 'public' => true],
         'publications_enabled' => ['group' => 'visibility', 'type' => 'boolean', 'public' => true],
         'referral_reward_rupees' => ['group' => 'commerce', 'type' => 'integer', 'public' => false],
+        'referral_min_withdrawal_rupees' => ['group' => 'commerce', 'type' => 'integer', 'public' => false],
         'default_currency' => ['group' => 'general', 'type' => 'string', 'public' => true],
         'default_timezone' => ['group' => 'general', 'type' => 'string', 'public' => true],
         'default_email' => ['group' => 'contact', 'type' => 'email', 'public' => true],

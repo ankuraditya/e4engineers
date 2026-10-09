@@ -43,6 +43,7 @@ import { AdminOrdersPage } from "./pages/AdminOrdersPage.jsx";
 import { AdminContentManager } from "./pages/AdminContentManager.jsx";
 import { AdminBooksPage } from "./pages/AdminBooksPage.jsx";
 import { AdminCouponsPage } from "./pages/AdminCouponsPage.jsx";
+import { AdminReferralsPage } from "./pages/AdminReferralsPage.jsx";
 import { discoveryService } from "./services/discoveryService.js";
 import { cmsService } from "./services/cmsService.js";
 import { navigate, ROUTE_CHANGE_EVENT } from "./state/PageLoaderContext.jsx";
@@ -251,6 +252,7 @@ export function App() {
   else if (path === "/admin/publishing") page = <AdminContentManager scope="publishing" />;
   else if (path === "/admin/books") page = <AdminBooksPage />;
   else if (path === "/admin/coupons") page = <AdminCouponsPage />;
+  else if (path === "/admin/referrals") page = <AdminReferralsPage />;
   else if (path === "/admin/orders") page = <AdminOrdersPage />;
   else if (path === "/admin/shipping") page = <AdminShippingPage />;
   else if (path === "/admin/shipments") page = <AdminShipmentPage />;

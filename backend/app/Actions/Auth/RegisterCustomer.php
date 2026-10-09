@@ -23,8 +23,6 @@ final class RegisterCustomer
             ]);
 
             $user->assignRole(Role::findOrCreate('customer', 'web'));
-            app(ReferralService::class)->codeFor($user);
-
             return $user;
         });
     }

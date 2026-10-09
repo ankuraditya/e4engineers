@@ -6,7 +6,7 @@ const groups = [
   ['Website', [['Pages, Banners & Media', '/admin/content', 'edit'], ['Notices, Gallery & Videos', '/admin/discovery', 'media']]],
   ['Publishing', [['Articles, Courses & Resources', '/admin/publishing', 'edit']]],
   ['Store', [['Book Catalogue & Stock', '/admin/books', 'bag'], ['Coupons & Offers', '/admin/coupons', 'card'], ['Orders', '/admin/orders', 'box'], ['Payments & Gateways', '/admin/payments', 'card'], ['Invoices', '/admin/invoices', 'file'], ['Shipping Providers', '/admin/shipping', 'truck'], ['Shipments', '/admin/shipments', 'truck']]],
-  ['Customers', [['Enquiries, Workshops & Careers', '/admin/operations', 'chat'], ['Internship Certificates', '/admin/certificates', 'file']]],
+  ['Customers', [['Enquiries, Workshops & Careers', '/admin/operations', 'chat'], ['Internship Certificates', '/admin/certificates', 'file'], ['Referrals & Wallet', '/admin/referrals', 'card']]],
   ['System', [['Notifications', '/admin/notifications', 'bell']]],
 ];
 

@@ -7,6 +7,7 @@ const cartHeaders = () => {
 
 export const checkoutService = {
   accountDashboard: () => apiRequest('/account/dashboard'),
+  requestWithdrawal: (amount_rupees, upi_id) => apiRequest('/account/referral-withdrawals', { method: 'POST', csrf: true, body: { amount_rupees, upi_id } }),
   placeOrder: (payload) => apiRequest("/checkout/place-order", { method: "POST", csrf: true, headers: cartHeaders(), body: payload }),
   orderSuccess: (orderNumber, token = "") => apiRequest(`/orders/${encodeURIComponent(orderNumber)}/success${token ? `?token=${encodeURIComponent(token)}` : ""}`),
   orders: ({ status = "", search = "" } = {}) => apiRequest(`/account/orders?${new URLSearchParams({ ...(status ? { status } : {}), ...(search ? { search } : {}) })}`),

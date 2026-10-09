@@ -5,6 +5,8 @@ namespace App\Http\Requests\Api\V1\Auth;
 use App\Http\Requests\Api\V1\ApiRequest;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
+use App\Services\ReferralService;
+use App\Models\User;
 
 final class RegisterRequest extends ApiRequest
 {
@@ -26,7 +28,11 @@ final class RegisterRequest extends ApiRequest
             'email' => ['required', 'email:rfc', 'max:255', 'unique:users,email'],
             'mobile' => ['required', 'regex:/^[6-9][0-9]{9}$/', 'unique:users,mobile'],
             'password' => ['required', 'confirmed', Password::min(8)],
-            'referral_code' => ['nullable', 'string', 'max:16', Rule::exists('users', 'referral_code')],
+            'referral_code' => ['nullable', 'string', 'max:16', Rule::exists('users', 'referral_code'), function ($attribute, $value, $fail): void {
+                if ($value && ! (($referrer = User::query()->where('referral_code', $value)->first()) && app(ReferralService::class)->eligible($referrer))) {
+                    $fail('This referral link is not available.');
+                }
+            }],
         ];
     }
 

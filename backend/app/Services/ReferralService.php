@@ -10,6 +10,12 @@ use Illuminate\Support\Str;
 
 final class ReferralService
 {
+    public function eligible(User $user): bool
+    {
+        return Order::query()->where('user_id', $user->id)->where('payment_status', 'paid')
+            ->where('status', '!=', 'cancelled')->whereHas('items', fn ($query) => $query->whereNotNull('book_id'))->exists();
+    }
+
     public function codeFor(User $user): string
     {
         if ($user->referral_code) {
@@ -31,13 +37,18 @@ final class ReferralService
 
     public function awardForPaidOrder(Order $order): void
     {
-        if (! $order->user_id || $order->currency !== 'INR') {
+        if (! $order->user_id || $order->currency !== 'INR' || $order->payment_status->value !== 'paid' || $order->status->value === 'cancelled') {
             return;
         }
 
         DB::transaction(function () use ($order): void {
             $buyer = User::query()->whereKey($order->user_id)->lockForUpdate()->first();
             if (! $buyer?->referred_by_user_id || $buyer->referred_by_user_id === $buyer->id) {
+                return;
+            }
+
+            $referrer = User::query()->find($buyer->referred_by_user_id);
+            if (! $referrer || ! $this->eligible($referrer)) {
                 return;
             }
 
@@ -64,7 +75,7 @@ final class ReferralService
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            DB::table('store_credit_entries')->insert([
+            DB::table('referral_wallet_entries')->insert([
                 'user_id' => $buyer->referred_by_user_id,
                 'referral_reward_id' => $rewardId,
                 'amount_paise' => $rupees * 100,
