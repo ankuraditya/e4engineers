@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Models\WebsiteSetting;
 use App\Services\ReferralService;
+use App\Services\OrderStatusService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -64,5 +65,12 @@ class OrderController extends Controller
         $order = Order::where('user_id', $request->user()->id)->where('order_number', $orderNumber)->firstOrFail();
 
         return $this->successResponse(new OrderResource($order->load(['items', 'shippingAddress', 'histories', 'shipment.provider'])));
+    }
+
+    public function cancel(Request $request, string $orderNumber, OrderStatusService $statuses): JsonResponse
+    {
+        $order = Order::where('user_id', $request->user()->id)->where('order_number', $orderNumber)->firstOrFail();
+
+        return $this->successResponse(new OrderResource($statuses->cancelByCustomer($order, $request->user()->id)->load(['items', 'shippingAddress', 'histories'])), 'Order cancelled.');
     }
 }

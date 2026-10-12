@@ -187,6 +187,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
         Route::get('/account/dashboard', [AccountOrderController::class, 'dashboard']);
         Route::post('/account/referral-withdrawals', [App\Http\Controllers\Api\V1\Account\ReferralWalletController::class, 'withdraw'])->middleware('throttle:public-support');
         Route::get('/account/orders/{orderNumber}', [AccountOrderController::class, 'show']);
+        Route::post('/account/orders/{orderNumber}/cancel', [AccountOrderController::class, 'cancel']);
         Route::get('/account/payments', [AccountPaymentController::class, 'index']);
         Route::get('/account/notification-preferences', [NotificationPreferenceController::class, 'show']);
         Route::put('/account/notification-preferences', [NotificationPreferenceController::class, 'update']);

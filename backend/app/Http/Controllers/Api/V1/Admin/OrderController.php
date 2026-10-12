@@ -34,7 +34,7 @@ class OrderController extends Controller
 
     public function show(string $orderNumber): JsonResponse
     {
-        return $this->successResponse(new OrderResource(Order::where('order_number', $orderNumber)->with(['items', 'shippingAddress', 'histories'])->firstOrFail()));
+        return $this->successResponse(new OrderResource(Order::where('order_number', $orderNumber)->with(['items', 'shippingAddress', 'histories', 'paymentAttempts.provider'])->firstOrFail()));
     }
 
     public function status(Request $request, string $orderNumber): JsonResponse

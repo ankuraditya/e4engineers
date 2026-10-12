@@ -112,6 +112,28 @@ final class CheckoutOrderTest extends TestCase
         $this->assertSame(1, InventoryMovement::where('type', 'cancellation_restore')->where('reference_id', $number)->count());
     }
 
+    public function test_customer_can_cancel_own_unfulfilled_cod_order_but_not_another_customers_order(): void
+    {
+        $buyer = User::factory()->create();
+        $other = User::factory()->create();
+        [$book, $token, $quote] = $this->checkoutFixture(authenticated: $buyer);
+        $number = $this->withHeader('X-Guest-Cart-Token', $token)->postJson('/api/v1/checkout/place-order', $this->payload($quote))->assertCreated()->json('data.order.order_number');
+
+        $this->actingAs($other)->postJson("/api/v1/account/orders/$number/cancel")->assertNotFound();
+        $this->actingAs($buyer)->postJson("/api/v1/account/orders/$number/cancel")->assertOk()->assertJsonPath('data.status', 'cancelled');
+        $this->assertSame(5, $book->inventory->fresh()->stock_quantity);
+        $this->postJson("/api/v1/account/orders/$number/cancel")->assertUnprocessable();
+    }
+
+    public function test_customer_cannot_cancel_a_paid_order_online(): void
+    {
+        $buyer = User::factory()->create();
+        $order = Order::factory()->create(['user_id' => $buyer->id, 'status' => 'confirmed', 'payment_status' => 'paid']);
+
+        $this->actingAs($buyer)->postJson("/api/v1/account/orders/$order->order_number/cancel")->assertUnprocessable();
+        $this->assertSame('confirmed', $order->fresh()->status->value);
+    }
+
     private function checkoutFixture(bool $quote = true, ?User $authenticated = null): array
     {
         $book = Book::factory()->create(['selling_price' => 1000, 'mrp' => 1200]);

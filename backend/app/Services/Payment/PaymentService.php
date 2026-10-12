@@ -74,6 +74,9 @@ final class PaymentService
             if ($order->payment_status === PaymentStatus::Paid) {
                 return $attempt;
             }
+            if ($order->status === OrderStatus::Cancelled) {
+                throw ValidationException::withMessages(['order' => ['This order has been cancelled. Contact support if payment was completed.']]);
+            }
             if ((string) $attempt->amount !== (string) $order->grand_total || $attempt->currency !== $order->currency) {
                 throw ValidationException::withMessages(['amount' => ['Payment amount or currency mismatch.']]);
             }

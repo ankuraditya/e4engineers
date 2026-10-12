@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\InventoryMovementType;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\ShippingStatus;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,24 @@ use Illuminate\Validation\ValidationException;
 final class OrderStatusService
 {
     public function __construct(private readonly InventoryService $inventory) {}
+
+    public function cancelByCustomer(Order $order, int $actorId): Order
+    {
+        return DB::transaction(function () use ($order, $actorId): Order {
+            $order = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+            if (! in_array($order->status, [OrderStatus::Confirmed, OrderStatus::Processing, OrderStatus::Packed], true)
+                || $order->payment_method !== 'cod'
+                || $order->payment_status !== PaymentStatus::CodPending
+                || $order->shipment()->exists() || $order->pickup_ready_at || $order->picked_up_at) {
+                throw ValidationException::withMessages(['order' => ['This order cannot be cancelled online. Please contact support if you need help.']]);
+            }
+
+            $cancelled = $this->transition($order, OrderStatus::Cancelled, $actorId, 'Cancelled by customer');
+            $cancelled->paymentAttempts()->where('status', 'cod_pending')->update(['status' => 'cancelled']);
+
+            return $cancelled->refresh();
+        });
+    }
 
     public function transition(Order $order, OrderStatus $target, int $actorId, ?string $note = null): Order
     {

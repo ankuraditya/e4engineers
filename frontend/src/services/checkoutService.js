@@ -12,6 +12,7 @@ export const checkoutService = {
   orderSuccess: (orderNumber, token = "") => apiRequest(`/orders/${encodeURIComponent(orderNumber)}/success${token ? `?token=${encodeURIComponent(token)}` : ""}`),
   orders: ({ status = "", search = "" } = {}) => apiRequest(`/account/orders?${new URLSearchParams({ ...(status ? { status } : {}), ...(search ? { search } : {}) })}`),
   order: (orderNumber) => apiRequest(`/account/orders/${encodeURIComponent(orderNumber)}`),
+  cancelOrder: (orderNumber) => apiRequest(`/account/orders/${encodeURIComponent(orderNumber)}/cancel`, { method: "POST", csrf: true }),
   saveAccess(orderNumber, token) { if (token) sessionStorage.setItem(`e4engineers-order-${orderNumber}`, token); },
   readAccess: (orderNumber) => sessionStorage.getItem(`e4engineers-order-${orderNumber}`) || "",
 };

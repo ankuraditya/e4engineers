@@ -669,6 +669,15 @@ body.page-loader-active{overflow:hidden}.global-page-loader{position:fixed;z-ind
 .scan-payment-panel label { display: block; margin-top: .8rem; font-weight: 600; color: #123b6a; }
 .scan-payment-panel input { display: block; width: 100%; margin-top: .35rem; }
 @media (max-width: 600px) { .scan-payment-panel { grid-template-columns: 1fr; } .scan-payment-panel img { max-width: 220px; } }
+.scan-proof-preview { margin-top: 12px; display: grid; gap: 6px; justify-items: start; }
+.scan-proof-preview img { width: min(100%, 240px); max-height: 240px; aspect-ratio: auto; object-fit: contain; }
+.scan-proof-preview small { color: var(--brand-text-muted); overflow-wrap: anywhere; }
+.admin-payment-proof { margin: 16px 0; padding: 16px; border: 1px solid #cbdff1; border-radius: 9px; background: #f1f7fd; }
+.admin-payment-proof h3 { margin-top: 0; }
+.admin-payment-proof a { margin-right: 12px; }
+.order-cancel-control { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.order-cancel-control .field-error { max-width: 280px; }
+.success-actions { flex-wrap: wrap; }
 .admin-status--pending_review { background: #fff3df; color: #a2600a; }
 .admin-content-list .admin-crud-actions { flex-wrap: wrap; justify-content: flex-end; max-width: min(100%, 490px); }
 .admin-content-list .admin-crud-actions input { min-width: 170px; min-height: 32px; padding: 6px 9px; border: 1px solid #cdddeb; border-radius: 7px; }
