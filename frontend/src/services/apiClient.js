@@ -1,6 +1,8 @@
 const configuredBaseUrl = import.meta.env?.VITE_API_BASE_URL;
 const localApiBaseUrl = typeof window !== "undefined" && ["localhost", "127.0.0.1"].includes(window.location.hostname)
   ? `${window.location.protocol}//${window.location.hostname}:8000/api/v1`
+  : typeof window !== "undefined" && ["e4engineers.in", "www.e4engineers.in"].includes(window.location.hostname)
+    ? "https://api.e4engineers.in/api/v1"
   : typeof window !== "undefined" ? `${window.location.origin}/api/v1` : "http://localhost:8000/api/v1";
 export const API_BASE_URL = (configuredBaseUrl || localApiBaseUrl).replace(/\/$/, "");
 const API_ORIGIN = new URL(API_BASE_URL).origin;
