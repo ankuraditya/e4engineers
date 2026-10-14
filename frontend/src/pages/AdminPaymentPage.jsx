@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { InnerPageHeader } from "../components/shared/InnerPageComponents";
 import { adminPaymentService as api } from "../services/adminPaymentService";
-import { API_BASE_URL } from "../services/apiClient.js";
+import { AdminPaymentProofButton } from "../components/admin/AdminPaymentProofButton.jsx";
 
 const unpack = response => response?.data?.data || response?.data || [];
 
@@ -90,7 +90,7 @@ export function AdminPaymentPage() {
     {tab === "attempts" && <section className="admin-data-panel"><header><div><h2>Payment attempts</h2><p>Review gateway payments and submitted Scan & Pay screenshots.</p></div></header>{attempts.length ? <div className="admin-content-list">{attempts.map(item => <article key={item.id}>
       <span className="admin-row-index">#{item.id}</span><div><strong>{item.order?.order_number || "Order"}</strong><small>{item.provider?.name || item.provider?.code} · {new Date(item.created_at).toLocaleString("en-IN")}</small>{item.proof_reference && <small>UPI reference: {item.proof_reference}</small>}</div>
       <span className={`admin-status admin-status--${item.status}`}>{item.status.replaceAll("_", " ")}</span>
-      <div className="admin-crud-actions">{item.provider?.code === "SCANPAY" && item.proof_uploaded_at && <a href={`${API_BASE_URL}/admin/payments/attempts/${item.id}/proof`} target="_blank" rel="noopener noreferrer">View screenshot</a>}
+      <div className="admin-crud-actions">{item.provider?.code === "SCANPAY" && item.proof_uploaded_at && <AdminPaymentProofButton attemptId={item.id} />}
         {item.provider?.code === "SCANPAY" && item.status === "pending_review" ? <><input aria-label={`Review note for ${item.order?.order_number}`} value={reviewNotes[item.id] || ""} onChange={event => setReviewNotes({ ...reviewNotes, [item.id]: event.target.value })} placeholder="Review note (optional)" maxLength={500} /><button disabled={busy} onClick={() => review(item, "approve")}>Approve payment</button><button disabled={busy} onClick={() => review(item, "reject")}>Reject proof</button></> : <button disabled={busy} onClick={() => act(async () => { await api.reconcile(item.id); await loadHistory("attempts"); }, "Attempt reconciled.")}>Reconcile</button>}
       </div>
     </article>)}</div> : <div className="admin-empty"><h3>No payment attempts</h3></div>}</section>}

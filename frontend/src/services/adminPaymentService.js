@@ -1,4 +1,26 @@
-import { apiRequest } from "./apiClient.js";
+import { API_BASE_URL, apiRequest } from "./apiClient.js";
+
+export async function loadPaymentProof(attemptId) {
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/admin/payments/attempts/${encodeURIComponent(attemptId)}/proof`, {
+      credentials: "include",
+      headers: { Accept: "image/png,image/jpeg,image/webp" },
+    });
+  } catch {
+    throw new Error("Unable to connect to the payment screenshot. Please try again.");
+  }
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) throw new Error("Your admin session has expired. Sign in again to view the screenshot.");
+    if (response.status === 404) throw new Error("This payment screenshot is no longer available. Please contact support before reviewing the payment.");
+    throw new Error("Unable to load the payment screenshot. Please try again.");
+  }
+
+  const blob = await response.blob();
+  if (!blob.type.startsWith("image/") || !blob.size) throw new Error("The payment screenshot could not be displayed.");
+  return blob;
+}
 
 export const adminPaymentService = {
   providers: () => apiRequest("/admin/payments/providers"),
