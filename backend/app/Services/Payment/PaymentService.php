@@ -92,8 +92,8 @@ final class PaymentService
             $order->histories()->create(['status_type' => 'payment', 'from_status' => PaymentStatus::Pending->value, 'to_status' => PaymentStatus::Paid->value, 'note' => 'Payment verified server-side']);
             $fresh = $attempt->refresh();
             DB::afterCommit(function () use ($fresh): void {
-                PaymentSucceeded::dispatch($fresh);
                 app(InvoiceService::class)->issueForOrder($fresh->order);
+                PaymentSucceeded::dispatch($fresh);
             });
 
             return $fresh;

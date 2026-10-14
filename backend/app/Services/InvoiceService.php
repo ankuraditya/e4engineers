@@ -98,9 +98,8 @@ class InvoiceService
 
     private function ensureEligible(Order $order): void
     {
-        $eligible = $order->payment_method === 'cod'
-            ? $order->status === OrderStatus::Confirmed
-            : $order->status === OrderStatus::Confirmed && $order->payment_status === PaymentStatus::Paid;
+        $fulfilled = in_array($order->status, [OrderStatus::Confirmed, OrderStatus::Processing, OrderStatus::Packed, OrderStatus::Shipped, OrderStatus::Delivered], true);
+        $eligible = $fulfilled && ($order->payment_method === 'cod' || $order->payment_status === PaymentStatus::Paid);
         if (! $eligible) {
             throw ValidationException::withMessages(['order' => ['Order is not eligible for invoice issuance.']]);
         }

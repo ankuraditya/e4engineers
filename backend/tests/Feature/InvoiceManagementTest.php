@@ -94,6 +94,31 @@ final class InvoiceManagementTest extends TestCase
         $this->actingAs($owner)->get('/api/v1/orders/'.$order->order_number.'/invoice/download')->assertOk()->assertHeader('content-type', 'application/pdf');
     }
 
+    public function test_paid_delivered_order_without_invoice_can_download_one(): void
+    {
+        $owner = User::factory()->create();
+        $attacker = User::factory()->create();
+        $order = $this->order(['user_id' => $owner->id, 'status' => OrderStatus::Delivered, 'payment_status' => PaymentStatus::Paid, 'payment_method' => 'scanpay']);
+        $url = '/api/v1/orders/'.$order->order_number.'/invoice/download';
+
+        $this->actingAs($attacker)->get($url)->assertNotFound();
+        $this->assertDatabaseMissing('invoices', ['order_id' => $order->id]);
+        $this->actingAs($owner)->get($url)->assertOk()->assertHeader('content-type', 'application/pdf');
+        $this->actingAs($owner)->get($url)->assertOk();
+        $this->assertSame(1, Invoice::where('order_id', $order->id)->count());
+    }
+
+    public function test_void_invoice_is_not_reissued_by_customer_download(): void
+    {
+        $owner = User::factory()->create();
+        $order = $this->order(['user_id' => $owner->id]);
+        $invoice = app(InvoiceService::class)->issueForOrder($order);
+        app(InvoiceService::class)->voidInvoice($invoice, 'Correction', $owner->id);
+
+        $this->actingAs($owner)->get('/api/v1/orders/'.$order->order_number.'/invoice/download')->assertNotFound();
+        $this->assertSame(1, Invoice::where('order_id', $order->id)->count());
+    }
+
     public function test_void_keeps_financial_snapshot_and_marks_pdf(): void
     {
         $admin = User::factory()->create();

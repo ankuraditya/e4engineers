@@ -188,7 +188,7 @@ final class CheckoutService
 
             $lockedCart->update(['status' => CartStatus::Converted, 'active_user_id' => null, 'guest_token' => null, 'coupon_id' => null, 'coupon_applied_at' => null, 'last_activity_at' => now()]);
 
-            if (! $online) {
+            if ($data['payment_method'] === 'cod') {
                 DB::afterCommit(fn () => app(InvoiceService::class)->issueForOrder($order));
             }
 
