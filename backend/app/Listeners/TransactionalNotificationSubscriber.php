@@ -107,7 +107,7 @@ class TransactionalNotificationSubscriber
 
     private function invoiceUrl(Order $order): string
     {
-        return rtrim((string) config('e4engineers.frontend_url'), '/').'/api/v1/orders/'.$order->order_number.'/invoice/download';
+        return $this->orderUrl($order);
     }
 
     public function subscribe(Dispatcher $events): array
