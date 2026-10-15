@@ -89,6 +89,33 @@ final class ShipmentManagementTest extends TestCase
         $this->assertSame($total, $order->fresh()->grand_total);
     }
 
+    public function test_shipprime_booking_tracking_and_webhook_use_awb_and_bearer_secret(): void
+    {
+        [$order, $provider] = $this->fixture('SHIPPRIME', ['api_token' => 'test-token', 'webhook_secret' => 'hook-secret']);
+        Http::fake([
+            '*/v1/forward' => Http::response(['status' => 'SUCCESS', 'awb' => 'SP12345', 'courier' => 'DELHIVERY', 'orderId' => 101, 'labelUrl' => 'https://cdn.shipprime.live/labels/101.pdf']),
+            '*/v1/forward/track*' => Http::response(['status' => 'SUCCESS', 'results' => [['awb' => 'SP12345', 'currentStatus' => 'SHIPPED', 'history' => [['status' => 'PICKED UP', 'statusDate' => now()->subHour()->toDateTimeString()]]]]]),
+            '*/v1/forward/SP12345/cancel' => Http::response(['status' => 'SUCCESS']),
+        ]);
+
+        $shipment = app(ShipmentService::class)->create($order, 'SHIPPRIME');
+        $this->assertSame('SP12345', $shipment->awb_number);
+        $this->assertSame('https://cdn.shipprime.live/labels/101.pdf', $shipment->provider_label_url);
+        Http::assertSent(fn ($request) => $request->url() === 'https://api.shipprime.live/v1/forward'
+            && $request->hasHeader('Authorization', 'Bearer test-token')
+            && $request['pickupAddress']['phone'] === '9876543210'
+            && $request['deliveryAddress']['pincode'] === '110001'
+            && $request['collectibleAmount'] === 579.0);
+
+        app(ShipmentService::class)->refreshTracking($shipment->load('provider'));
+        $this->assertSame(ShipmentStatus::InTransit, $shipment->fresh()->status);
+
+        $payload = ['id' => 'shipprime-event-1', 'awb' => 'SP12345', 'currentStatus' => 'DELIVERED', 'statusDate' => now()->toIso8601String()];
+        $this->postJson('/api/v1/shipping/webhooks/shipprime', $payload)->assertUnauthorized();
+        $this->withToken('hook-secret')->postJson('/api/v1/shipping/webhooks/shipprime', $payload)->assertOk();
+        $this->assertSame(ShipmentStatus::Delivered, $shipment->fresh()->status);
+    }
+
     private function fixture(string $code, array $configuration = []): array
     {
         $provider = ShippingProvider::where('code', $code)->firstOrFail();

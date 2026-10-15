@@ -63,7 +63,7 @@ class ShipmentService
         $attempt = $this->attempt($shipment, 'create', 'shipment:'.$order->id.':'.$provider->code);
         try {
             $result = $this->providers->adapter($provider->code)->createShipment($provider, $this->payload($order, $shipment));
-            $shipment->update(['provider_order_id' => $result['provider_order_id'] ?? null, 'provider_shipment_id' => $result['provider_shipment_id'] ?? null, 'awb_number' => $result['awb_number'] ?? null, 'courier_name' => $result['courier_name'] ?? $shipment->courier_name, 'status' => filled($result['awb_number'] ?? null) ? ShipmentStatus::AwbAssigned : ShipmentStatus::Booked]);
+            $shipment->update(['provider_order_id' => $result['provider_order_id'] ?? null, 'provider_shipment_id' => $result['provider_shipment_id'] ?? null, 'awb_number' => $result['awb_number'] ?? null, 'courier_name' => $result['courier_name'] ?? $shipment->courier_name, 'provider_label_url' => $result['label_url'] ?? null, 'status' => filled($result['awb_number'] ?? null) ? ShipmentStatus::AwbAssigned : ShipmentStatus::Booked]);
             $attempt->update(['status' => 'succeeded', 'provider_reference' => $shipment->provider_shipment_id, 'completed_at' => now()]);
             $this->recordEvent($shipment, $shipment->status, 'Shipment booked', now(), null, 'system');
             $this->syncOrder($shipment);
@@ -199,7 +199,8 @@ class ShipmentService
         if (in_array($shipment->status, [ShipmentStatus::PickedUp, ShipmentStatus::InTransit, ShipmentStatus::OutForDelivery, ShipmentStatus::Delivered], true)) {
             throw ValidationException::withMessages(['shipment' => ['Shipment can no longer be cancelled.']]);
         }
-        $this->providers->adapter($shipment->provider->code)->cancelShipment($shipment->provider, $shipment->provider_order_id ?: $shipment->provider_shipment_id);
+        $reference = $shipment->provider->code === 'SHIPPRIME' ? $shipment->awb_number : ($shipment->provider_order_id ?: $shipment->provider_shipment_id);
+        $this->providers->adapter($shipment->provider->code)->cancelShipment($shipment->provider, $reference);
         $shipment->update(['status' => ShipmentStatus::Cancelled, 'cancelled_at' => now()]);
         $this->recordEvent($shipment, ShipmentStatus::Cancelled, 'Shipment cancelled', now(), null, 'admin');
         $this->syncOrder($shipment);
@@ -220,7 +221,7 @@ class ShipmentService
         $attempt = $this->attempt($shipment, 'create', 'shipment:'.$order->id.':'.$shipment->provider->code.':retry:'.($shipment->attempts()->count() + 1));
         try {
             $result = $this->providers->adapter($shipment->provider->code)->createShipment($shipment->provider, $this->payload($order, $shipment));
-            $shipment->update(['provider_order_id' => $result['provider_order_id'] ?? null, 'provider_shipment_id' => $result['provider_shipment_id'] ?? null, 'awb_number' => $result['awb_number'] ?? null, 'courier_name' => $result['courier_name'] ?? $shipment->courier_name, 'status' => filled($result['awb_number'] ?? null) ? ShipmentStatus::AwbAssigned : ShipmentStatus::Booked, 'failure_code' => null, 'failure_message' => null, 'failed_at' => null]);
+            $shipment->update(['provider_order_id' => $result['provider_order_id'] ?? null, 'provider_shipment_id' => $result['provider_shipment_id'] ?? null, 'awb_number' => $result['awb_number'] ?? null, 'courier_name' => $result['courier_name'] ?? $shipment->courier_name, 'provider_label_url' => $result['label_url'] ?? null, 'status' => filled($result['awb_number'] ?? null) ? ShipmentStatus::AwbAssigned : ShipmentStatus::Booked, 'failure_code' => null, 'failure_message' => null, 'failed_at' => null]);
             $attempt->update(['status' => 'succeeded', 'provider_reference' => $shipment->provider_shipment_id, 'completed_at' => now()]);
             $this->recordEvent($shipment, $shipment->status, 'Shipment booking retried', now(), null, 'admin');
             $this->syncOrder($shipment);
@@ -262,7 +263,7 @@ class ShipmentService
         $a = $order->shippingAddress;
         $p = $shipment->pickup_location_snapshot;
 
-        return ['order_id' => $order->order_number, 'order_number' => $order->order_number, 'order_date' => $order->placed_at?->format('Y-m-d H:i'), 'pickup_location' => $p['name'], 'billing_customer_name' => $a->name, 'billing_address' => $a->address_line1, 'billing_address_2' => $a->address_line2, 'billing_city' => $a->city, 'billing_pincode' => $a->postal_code, 'billing_state' => $a->state, 'billing_country' => $a->country, 'billing_email' => $a->email, 'billing_phone' => $a->mobile, 'shipping_is_billing' => true, 'order_items' => $order->items->map(fn ($item) => ['name' => $item->title, 'sku' => $item->sku, 'units' => $item->quantity, 'selling_price' => $item->unit_price])->all(), 'payment_method' => $shipment->payment_mode, 'sub_total' => $order->grand_total, 'cod_amount' => $shipment->cod_amount, 'length' => $shipment->length_cm, 'breadth' => $shipment->width_cm, 'height' => $shipment->height_cm, 'weight' => $shipment->weight_grams / 1000, 'courier_id' => $shipment->courier_code];
+        return ['order_id' => $order->order_number, 'order_number' => $order->order_number, 'order_date' => $order->placed_at?->format('Y-m-d H:i'), 'pickup_location' => $p['name'], 'pickup_address' => $p, 'billing_customer_name' => $a->name, 'billing_address' => $a->address_line1, 'billing_address_2' => $a->address_line2, 'billing_city' => $a->city, 'billing_pincode' => $a->postal_code, 'billing_state' => $a->state, 'billing_country' => $a->country, 'billing_email' => $a->email, 'billing_phone' => $a->mobile, 'shipping_is_billing' => true, 'order_items' => $order->items->map(fn ($item) => ['name' => $item->title, 'sku' => $item->sku, 'units' => $item->quantity, 'selling_price' => $item->unit_price])->all(), 'payment_method' => $shipment->payment_mode, 'sub_total' => $order->grand_total, 'cod_amount' => $shipment->cod_amount, 'length' => $shipment->length_cm, 'breadth' => $shipment->width_cm, 'height' => $shipment->height_cm, 'weight' => $shipment->weight_grams / 1000, 'courier_id' => $shipment->courier_code];
     }
 
     private function attempt(Shipment $shipment, string $action, string $key): ShipmentAttempt
@@ -281,7 +282,7 @@ class ShipmentService
         $value = strtoupper(str_replace(['-', '_'], ' ', $status));
 
         return match (true) {
-            str_contains($value, 'RTO DELIVER') => ShipmentStatus::RtoDelivered, str_contains($value, 'RTO') && str_contains($value, 'TRANSIT') => ShipmentStatus::RtoInTransit, str_contains($value, 'RTO') => ShipmentStatus::RtoInitiated, str_contains($value, 'OUT FOR DELIVERY') => ShipmentStatus::OutForDelivery, str_contains($value, 'FAIL') || str_contains($value, 'UNDELIVER') => ShipmentStatus::DeliveryFailed, str_contains($value, 'DELIVERED') => ShipmentStatus::Delivered, str_contains($value, 'PICK') => ShipmentStatus::PickedUp, str_contains($value, 'IN TRANSIT') => ShipmentStatus::InTransit, str_contains($value, 'CANCEL') => ShipmentStatus::Cancelled, default => ShipmentStatus::Unknown
+            str_contains($value, 'RTO DELIVER') => ShipmentStatus::RtoDelivered, str_contains($value, 'RTO') && str_contains($value, 'TRANSIT') => ShipmentStatus::RtoInTransit, str_contains($value, 'RTO') => ShipmentStatus::RtoInitiated, str_contains($value, 'OUT FOR DELIVERY') => ShipmentStatus::OutForDelivery, str_contains($value, 'FAIL') || str_contains($value, 'UNDELIVER') => ShipmentStatus::DeliveryFailed, str_contains($value, 'DELIVERED') => ShipmentStatus::Delivered, str_contains($value, 'PICK') => ShipmentStatus::PickedUp, str_contains($value, 'IN TRANSIT') || $value === 'SHIPPED' => ShipmentStatus::InTransit, str_contains($value, 'CANCEL') => ShipmentStatus::Cancelled, default => ShipmentStatus::Unknown
         };
     }
 

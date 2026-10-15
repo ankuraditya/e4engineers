@@ -68,6 +68,21 @@ final class ShippingManagementTest extends TestCase
         $this->assertSame('top-secret', $p->fresh()->configuration['password']);
     }
 
+    public function test_shipprime_token_is_masked_and_live_rates_map_to_checkout_charges(): void
+    {
+        $provider = ShippingProvider::where('code', 'SHIPPRIME')->firstOrFail();
+        $provider->update(['configuration' => ['api_token' => 'private-token']]);
+        $this->assertNull($provider->fresh()->maskedConfiguration()['api_token']);
+        $this->assertTrue($provider->fresh()->maskedConfiguration()['api_token_configured']);
+
+        Http::fake(['*/v1/forward/rates*' => Http::response(['status' => 'SUCCESS', 'rates' => [['courier' => 'DELHIVERY', 'forwardCharge' => 72.5, 'codCharge' => 18.0, 'totalCharge' => 90.5]]])]);
+        $rates = app(\App\Services\Shipping\ShipPrimeShippingProvider::class)->rates($provider, ['origin_postal_code' => '110001', 'destination_postal_code' => '828104', 'weight_grams' => 500, 'cod' => true, 'declared_value' => '499.00']);
+        $this->assertSame('SHIPPRIME', $rates[0]['provider']);
+        $this->assertSame('72.5', $rates[0]['charge']);
+        $this->assertSame('18', $rates[0]['cod_charge']);
+        Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer private-token') && str_contains($request->url(), 'pickupPincode=110001'));
+    }
+
     public function test_toggle_requires_connection_and_default_is_transactional(): void
     {
         $admin = $this->admin();

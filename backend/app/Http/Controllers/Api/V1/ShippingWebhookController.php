@@ -16,7 +16,8 @@ class ShippingWebhookController extends Controller
     {
         $configured = ShippingProvider::where('code', strtoupper($provider))->firstOrFail();
         $secret = (string) data_get($configured->configuration, 'webhook_secret');
-        abort_unless($secret !== '' && hash_equals($secret, (string) $request->header('x-api-key')), 401);
+        $supplied = $configured->code === 'SHIPPRIME' ? (string) $request->bearerToken() : (string) $request->header('x-api-key');
+        abort_unless($secret !== '' && hash_equals($secret, $supplied), 401);
         $raw = $request->getContent();
         $payload = $request->json()->all();
         $eventId = (string) ($request->header('x-event-id') ?: data_get($payload, 'id') ?: hash('sha256', $raw));
@@ -24,10 +25,10 @@ class ShippingWebhookController extends Controller
         if ($event->processed_at) {
             return response()->json(['success' => true]);
         }
-        $awb = (string) (data_get($payload, 'awb') ?? data_get($payload, 'awb_number') ?? data_get($payload, 'tracking_number'));
+        $awb = (string) (data_get($payload, 'awb') ?? data_get($payload, 'awb_number') ?? data_get($payload, 'awbNumber') ?? data_get($payload, 'tracking_number'));
         $shipment = Shipment::where('shipping_provider_id', $configured->id)->where('awb_number', $awb)->first();
         if ($shipment) {
-            $service->handleTracking($shipment, (string) (data_get($payload, 'current_status') ?? data_get($payload, 'status') ?? data_get($payload, 'shipment_status')), (string) (data_get($payload, 'status_text') ?? data_get($payload, 'current_status') ?? 'Tracking update'), data_get($payload, 'current_timestamp') ?? data_get($payload, 'event_time') ?? now(), data_get($payload, 'location'), 'webhook', $eventId);
+            $service->handleTracking($shipment, (string) (data_get($payload, 'currentStatus') ?? data_get($payload, 'current_status') ?? data_get($payload, 'status') ?? data_get($payload, 'shipment_status')), (string) (data_get($payload, 'status_text') ?? data_get($payload, 'currentStatus') ?? data_get($payload, 'current_status') ?? 'Tracking update'), data_get($payload, 'statusDate') ?? data_get($payload, 'current_timestamp') ?? data_get($payload, 'event_time') ?? now(), data_get($payload, 'location'), 'webhook', $eventId);
         }
         $event->update(['status' => 'processed', 'processed_at' => now()]);
 

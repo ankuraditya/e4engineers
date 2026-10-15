@@ -9,12 +9,12 @@ use App\Models\ShippingSetting;
 
 class ShippingProviderManager
 {
-    public function __construct(private NimbusPostShippingProvider $nimbus, private ShiprocketShippingProvider $shiprocket) {}
+    public function __construct(private NimbusPostShippingProvider $nimbus, private ShiprocketShippingProvider $shiprocket, private ShipPrimeShippingProvider $shipPrime) {}
 
     public function adapter(string $code): ShippingProviderInterface
     {
         return match (strtoupper($code)) {
-            'NIMBUSPOST' => $this->nimbus,'SHIPROCKET' => $this->shiprocket,default => throw new ShippingProviderException('UNKNOWN_PROVIDER', 'Unknown shipping provider.')
+            'NIMBUSPOST' => $this->nimbus,'SHIPROCKET' => $this->shiprocket,'SHIPPRIME' => $this->shipPrime,default => throw new ShippingProviderException('UNKNOWN_PROVIDER', 'Unknown shipping provider.')
         };
     }
 
