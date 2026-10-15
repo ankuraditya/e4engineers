@@ -81,6 +81,10 @@ final class ShippingManagementTest extends TestCase
         $this->assertSame('72.5', $rates[0]['charge']);
         $this->assertSame('18', $rates[0]['cod_charge']);
         Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer private-token') && str_contains($request->url(), 'pickupPincode=110001'));
+
+        $this->assertTrue(app(\App\Services\Shipping\ShipPrimeShippingProvider::class)->testConnection($provider)['connected']);
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/forward/rates?') && str_contains($request->url(), 'pickupPincode=828104'));
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/wallet'));
     }
 
     public function test_toggle_requires_connection_and_default_is_transactional(): void

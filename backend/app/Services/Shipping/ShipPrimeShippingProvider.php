@@ -49,7 +49,15 @@ class ShipPrimeShippingProvider implements ShippingProviderInterface
 
     public function testConnection(ShippingProvider $provider): array
     {
-        $this->request($provider, 'GET', '/v1/forward/wallet');
+        // A valid shop can have no wallet yet; that endpoint returns 404 even when
+        // its API token works. A rate quote verifies the shipping API directly.
+        $this->request($provider, 'GET', '/v1/forward/rates', [
+            'pickupPincode' => '828104',
+            'deliveryPincode' => '110001',
+            'weightGrams' => 500,
+            'paymentMethod' => 'PREPAID',
+            'collectibleAmount' => 0,
+        ]);
 
         return ['connected' => true, 'provider' => $this->code(), 'message' => 'ShipPrime connection successful.'];
     }
