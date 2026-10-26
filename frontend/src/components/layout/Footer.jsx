@@ -91,7 +91,7 @@ export function Footer({ publicationsEnabled = true }) {
         <div className="footer-main">
           <div className="footer-brand">
             <a className="footer-wordmark" href="#top" aria-label="E4ENGINEERS home"><img src="/brand/e4engineers-logo.png" alt="E4ENGINEERS — Engineering Knowledge Connected" /></a>
-            <p>Engineering knowledge for<br />a brighter tomorrow.</p>
+            <p className="footer-company-tagline">A Unit of E4ENGINEERS PVT LTD</p>
             <div className="footer-socials">
               {socialLinks.map(({ label, href, icon: Icon }) => <a href={href} aria-label={label} key={label}><Icon aria-hidden="true" weight="fill" /></a>)}
             </div>

@@ -19,3 +19,5 @@ Scan & Pay is an optional admin-configured checkout method. Customers must uploa
 
 The client requested an Internship navigation area with an Explore Internships landing page listing available programs and a Verify Certificate entry. Keep the approved public design language and do not invent live programs.
 
+The footer brand area displays “A Unit of E4ENGINEERS PVT LTD” directly beneath the logo.
+
