@@ -23,3 +23,5 @@ The footer brand area displays “A Unit of E4ENGINEERS PVT LTD” directly bene
 
 At customer checkout, display the Cashfree option as “Debit/ Credit card/ UPI” while retaining Cashfree as the payment provider internally.
 
+For courier checkout, display Delivery Address before Delivery Method. Keep step numbering consecutive when Self Collect hides the delivery address.
+
