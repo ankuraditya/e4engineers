@@ -21,3 +21,5 @@ The client requested an Internship navigation area with an Explore Internships l
 
 The footer brand area displays “A Unit of E4ENGINEERS PVT LTD” directly beneath the logo.
 
+At customer checkout, display the Cashfree option as “Debit/ Credit card/ UPI” while retaining Cashfree as the payment provider internally.
+
