@@ -25,7 +25,7 @@ final class AdminDashboardController extends Controller
     {
         return $this->successResponse([
             'counts' => [
-                'users' => User::count(), 'articles' => Article::count(), 'courses' => Course::count(),
+                'users' => User::whereHas('roles', fn ($query) => $query->where('name', 'customer'))->count(), 'articles' => Article::count(), 'courses' => Course::count(),
                 'publications' => Publication::count(), 'books' => Book::count(), 'orders' => Order::count(),
                 'self_collect_pending' => Order::where('delivery_method', 'self_collect')->whereNull('picked_up_at')->where('status', '!=', 'cancelled')->count(),
                 'new_enquiries' => Enquiry::where('status', 'new')->count(), 'open_tickets' => SupportTicket::whereNotIn('status', ['resolved', 'closed'])->count(),

@@ -6,7 +6,7 @@ const groups = [
   ['Website', [['Pages, Banners & Media', '/admin/content', 'edit'], ['Notices, Gallery & Videos', '/admin/discovery', 'media']]],
   ['Publishing', [['Articles, Courses & Resources', '/admin/publishing', 'edit']]],
   ['Store', [['Book Catalogue & Stock', '/admin/books', 'bag'], ['Coupons & Offers', '/admin/coupons', 'card'], ['Orders', '/admin/orders', 'box'], ['Payments & Gateways', '/admin/payments', 'card'], ['Invoices', '/admin/invoices', 'file'], ['Shipping Providers', '/admin/shipping', 'truck'], ['Shipments', '/admin/shipments', 'truck']]],
-  ['Customers', [['Enquiries, Workshops & Careers', '/admin/operations', 'chat'], ['Internship Certificates', '/admin/certificates', 'file'], ['Referrals & Wallet', '/admin/referrals', 'card']]],
+  ['Customers', [['Users', '/admin/customers', 'users'], ['Enquiries, Workshops & Careers', '/admin/operations', 'chat'], ['Internship Certificates', '/admin/certificates', 'file'], ['Referrals & Wallet', '/admin/referrals', 'card']]],
   ['System', [['Notifications', '/admin/notifications', 'bell']]],
 ];
 
@@ -17,6 +17,7 @@ const icons = {
   truck: 'M3 6h11v10H3zm11 4h4l3 3v3h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4m11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4',
   box: 'M4 7 12 3l8 4-8 4zm0 0v10l8 4 8-4V7M12 11v10', chat: 'M4 5h16v12H8l-4 4zm4 5h8m-8 3h5',
   bell: 'M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zm4 3h4',
+  users: 'M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m17 0v-2a4 4 0 0 0-3-3.87M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6m8-5.87a3 3 0 0 1 0 5.74',
 };
 function NavIcon({ name }) { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d={icons[name]} /></svg>; }
 function readCachedUser() { try { return JSON.parse(sessionStorage.getItem('e4-admin-user') || 'null'); } catch { return null; } }

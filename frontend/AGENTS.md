@@ -25,3 +25,5 @@ At customer checkout, display the Cashfree option as â€œDebit/ Credit card/ UPIâ
 
 For courier checkout, display Delivery Address before Delivery Method. Keep step numbering consecutive when Self Collect hides the delivery address.
 
+The admin Users area shows registered customer records, separate from administrator accounts, with contact details for authorized staff. It does not send promotional messages automatically.
+
