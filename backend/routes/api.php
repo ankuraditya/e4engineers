@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\V1\Admin\InternshipCertificateController as AdminIn
 use App\Http\Controllers\Api\V1\Admin\InventoryController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceSettingsController;
+use App\Http\Controllers\Api\V1\Admin\McqPracticeController as AdminMcqPracticeController;
 use App\Http\Controllers\Api\V1\Admin\MediaController;
 use App\Http\Controllers\Api\V1\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\OperationsController;
@@ -65,6 +66,7 @@ use App\Http\Controllers\Api\V1\Public\DigitalDownloadController;
 use App\Http\Controllers\Api\V1\Public\DigitalResourceController;
 use App\Http\Controllers\Api\V1\Public\DiscoveryController;
 use App\Http\Controllers\Api\V1\Public\EngineeringDisciplineController;
+use App\Http\Controllers\Api\V1\Public\McqPracticeController;
 use App\Http\Controllers\Api\V1\Public\PublicationController;
 use App\Http\Controllers\Api\V1\Public\PublicationTypeController;
 use App\Http\Controllers\Api\V1\Public\PublisherController;
@@ -122,6 +124,9 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
     Route::get('/articles/{slug}', [ArticleController::class, 'show']);
     Route::get('/courses', [CourseController::class, 'index']);
     Route::get('/courses/{slug}', [CourseController::class, 'show']);
+    Route::get('/mcq-practice', [McqPracticeController::class, 'index']);
+    Route::get('/mcq-practice/{slug}', [McqPracticeController::class, 'show']);
+    Route::post('/mcq-practice/{slug}/submit', [McqPracticeController::class, 'submit'])->middleware('throttle:20,1');
     Route::get('/publications', [PublicationController::class, 'index']);
     Route::get('/publications/{slug}', [PublicationController::class, 'show']);
     Route::get('/books', [BookController::class, 'index']);
@@ -207,6 +212,11 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
             Route::get('/auth/me', [AdminAuthenticationController::class, 'me']);
             Route::post('/auth/logout', [AdminAuthenticationController::class, 'logout']);
             Route::get('/dashboard', AdminDashboardController::class)->middleware('permission:admin.dashboard.access');
+            Route::get('/mcq-practice', [AdminMcqPracticeController::class, 'index']);
+            Route::post('/mcq-practice', [AdminMcqPracticeController::class, 'store']);
+            Route::get('/mcq-practice/{set}', [AdminMcqPracticeController::class, 'show']);
+            Route::put('/mcq-practice/{set}', [AdminMcqPracticeController::class, 'update']);
+            Route::delete('/mcq-practice/{set}', [AdminMcqPracticeController::class, 'destroy']);
             Route::get('/customers', [AdminCustomerController::class, 'index'])->middleware('permission:orders.customer.view');
             Route::get('/referral-withdrawals', [ReferralWithdrawalController::class, 'index'])->middleware('permission:orders.view');
             Route::patch('/referral-withdrawals/{id}', [ReferralWithdrawalController::class, 'update'])->middleware('permission:orders.update-status');

@@ -44,6 +44,8 @@ import { AdminContentManager } from "./pages/AdminContentManager.jsx";
 import { AdminBooksPage } from "./pages/AdminBooksPage.jsx";
 import { AdminCouponsPage } from "./pages/AdminCouponsPage.jsx";
 import { AdminReferralsPage } from "./pages/AdminReferralsPage.jsx";
+import { AdminLearnPage, AdminMcqPracticePage } from "./pages/AdminLearnPages.jsx";
+import { McqPracticePage, McqPracticeSetPage } from "./pages/McqPracticePages.jsx";
 import { AdminCustomersPage } from "./pages/AdminCustomersPage.jsx";
 import { discoveryService } from "./services/discoveryService.js";
 import { cmsService } from "./services/cmsService.js";
@@ -81,6 +83,7 @@ const navigation = [
     ["Formula Sheets", "/resources?type=formula-sheets"],
     ["Study Guides", "/resources?type=study-guides"],
     ["Practice Materials", "/resources?type=practice-materials"],
+    ["MCQ Practice", "/mcq-practice"],
   ] },
   { label: "Internship", items: [
     ["Explore Internships", "/internships"],
@@ -207,6 +210,8 @@ export function App() {
   else if (path === "/articles") page = <ArticlesPage />;
   else if (path.startsWith("/articles/")) page = <ArticleDetailPage slug={decodeURIComponent(path.split("/")[2] || "power-system-economics")} />;
   else if (path === "/courses") page = <CoursesPage />;
+  else if (path === "/mcq-practice") page = <McqPracticePage />;
+  else if (path.startsWith("/mcq-practice/")) page = <McqPracticeSetPage slug={decodeURIComponent(path.split('/')[2] || '')} />;
   else if (path === "/internships") page = <InternshipsPage />;
   else if (path === "/verify-certificate") page = <VerifyCertificatePage />;
   else if (path.startsWith("/courses/")) page = <CourseDetailPage slug={decodeURIComponent(path.split("/")[2] || "fundamentals-of-electrical-and-electronics-engineering")} />;
@@ -251,6 +256,8 @@ export function App() {
   else if (path === "/admin") page = <AdminDashboardPage />;
   else if (path === "/admin/content") page = <AdminContentManager scope="website" />;
   else if (path === "/admin/publishing") page = <AdminContentManager scope="publishing" />;
+  else if (path === "/admin/learn") page = <AdminLearnPage />;
+  else if (path === "/admin/mcq-practice") page = <AdminMcqPracticePage />;
   else if (path === "/admin/books") page = <AdminBooksPage />;
   else if (path === "/admin/coupons") page = <AdminCouponsPage />;
   else if (path === "/admin/referrals") page = <AdminReferralsPage />;

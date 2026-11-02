@@ -27,3 +27,5 @@ For courier checkout, display Delivery Address before Delivery Method. Keep step
 
 The admin Users area shows registered customer records, separate from administrator accounts, with contact details for authorized staff. It does not send promotional messages automatically.
 
+The Learn menu's course and study-resource sections are administered through Publishing. Resource types decide which Learn submenu a published file appears under. MCQ Practice has admin-managed subjects, question sets, and answer keys; no sample questions should appear publicly until an editor publishes them.
+

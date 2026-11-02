@@ -4,7 +4,7 @@ import { adminService } from '../../services/adminService';
 const groups = [
   ['Overview', [['Dashboard', '/admin', 'grid']]],
   ['Website', [['Pages, Banners & Media', '/admin/content', 'edit'], ['Notices, Gallery & Videos', '/admin/discovery', 'media']]],
-  ['Publishing', [['Articles, Courses & Resources', '/admin/publishing', 'edit']]],
+  ['Publishing', [['Articles, Courses & Resources', '/admin/publishing', 'edit'], ['Learn Content', '/admin/learn', 'file'], ['MCQ Practice', '/admin/mcq-practice', 'grid']]],
   ['Store', [['Book Catalogue & Stock', '/admin/books', 'bag'], ['Coupons & Offers', '/admin/coupons', 'card'], ['Orders', '/admin/orders', 'box'], ['Payments & Gateways', '/admin/payments', 'card'], ['Invoices', '/admin/invoices', 'file'], ['Shipping Providers', '/admin/shipping', 'truck'], ['Shipments', '/admin/shipments', 'truck']]],
   ['Customers', [['Users', '/admin/customers', 'users'], ['Enquiries, Workshops & Careers', '/admin/operations', 'chat'], ['Internship Certificates', '/admin/certificates', 'file'], ['Referrals & Wallet', '/admin/referrals', 'card']]],
   ['System', [['Notifications', '/admin/notifications', 'bell']]],

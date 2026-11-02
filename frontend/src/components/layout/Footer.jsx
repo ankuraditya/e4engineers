@@ -24,6 +24,7 @@ const footerNavigation = [
       ["Question Papers", "/resources?type=solved-question-papers"],
       ["Technical Diagrams", "/resources?type=technical-diagrams"],
       ["Formula Sheets", "/resources?type=formula-sheets"],
+      ["MCQ Practice", "/mcq-practice"],
     ],
   },
   {
